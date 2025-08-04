@@ -1,0 +1,1 @@
+I wanted to recreate an existing popular "goldfishing", or play-testing, playing-card simulator in flutter/dart in order to have a better mobile experience.
