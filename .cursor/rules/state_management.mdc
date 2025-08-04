@@ -1,0 +1,122 @@
+# State Management Guidelines
+
+## Directory Structure
+
+```
+lib/
+  └── feature_name/
+      └── application/
+          ├── feature_cubit.dart
+          └── feature_state.dart
+```
+
+## State Management Conventions
+
+### State Class Structure
+
+1. State classes must:
+   - Use freezed annotation
+   - Have a private constructor with _()
+   - Have factory constructor for initial state
+   - Be immutable
+
+### Cubit Class Structure
+
+1. Cubit classes should:
+   - Have a single responsibility
+   - Handle a specific feature or workflow
+   - Contain only business logic
+2. Constructor must:
+   - Accept all required services via parameters
+   - Use GetIt fallback for dependencies
+
+### Naming Conventions
+
+1. Files:
+   - State file: `feature_state.dart`
+   - Cubit file: `feature_cubit.dart`
+2. Classes:
+   - State class: `FeatureState`
+   - Cubit class: `FeatureCubit`
+3. Methods:
+   - initialize() for setup
+   - retryX() for error recovery
+   - clear descriptive method names for actions
+
+## State Properties
+
+1. Common State Properties:
+   ```dart
+   @freezed
+   class FeatureState with _$FeatureState {
+     const FeatureState._(); // Private constructor for making the class extendable
+
+     const factory FeatureState({
+       required DataState<MainData> dataState,
+       @Default(false) bool secondaryData,
+     }) = _FeatureState;
+
+     // Helper getters for derived states
+     bool get isLoading => dataState.isLoading;
+     bool get hasError => dataState.hasError;
+     bool get isSuccess => dataState.isSuccess;
+     bool get isIdle => dataState.isIdle;
+
+     factory FeatureState.initial() => const FeatureState(
+       dataState: DataState.idle(),
+       secondaryData: false,
+     );
+   }
+   ```
+
+## Error Handling
+
+1. Use DataState for handling loading/error/success states
+2. Show appropriate UI feedback for errors
+
+## Best Practices
+
+1. State Management:
+   - Use DataState for async operations
+   - Provide helper getters for common state checks
+   - Keep state immutable
+   - Use proper state tracking for operations
+
+2. Testing:
+   - Test all state transitions
+   - Test error handling
+   - Mock all dependencies
+   - Test retry mechanisms
+
+## Code Example
+
+```dart
+class FeatureCubit extends Cubit<FeatureState> {
+  final IFeatureService _service;
+
+  FeatureCubit({
+    IFeatureService? service,
+  })  : _service = service ?? getdep<IFeatureService>(),
+        super(FeatureState.initial());
+
+  Future<void> initialize({required String param}) async {
+    emit(state.copyWith(
+      dataState: const DataState.loading(),
+    ));
+    
+    try {
+      final data = await _service.getData(param);
+      emit(state.copyWith(
+        dataState: DataState.success(data),
+      ));
+    } catch (e) {
+      emit(state.copyWith(
+        dataState: const DataState.error(),
+      ));
+    }
+  }
+
+  Future<void> operation() async {
+    // Operation logic
+  }
+} 

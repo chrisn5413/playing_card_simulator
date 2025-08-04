@@ -1,0 +1,277 @@
+---
+alwaysApply: true
+---
+
+# Flutter Project Structure and Naming Conventions
+
+## Directory Structure
+
+```
+lib/
+├── core/
+│   ├── error/
+│   ├── utils/
+│   └── constants/
+├── features/
+│   ├── card_simulator/
+│   │   ├── presentation/
+│   │   │   ├── pages/
+│   │   │   │   ├── simulator_page.dart         # Main screen with all zones and UI
+│   │   │   │   └── deck_browser_page.dart      # Web view so user can find deck without needing link
+│   │   │   ├── widgets/
+│   │   │   │   ├── card_widget.dart            # Single card image and interactions
+│   │   │   │   ├── zone_widget.dart            # Base for any zone (deck, hand, battlefield, etc.)
+│   │   │   │   ├── battlefield_widget.dart     # Grid with draggable cards
+│   │   │   │   ├── hand_widget.dart            # Horizontal list of cards
+│   │   │   │   ├── dropdown_menu.dart          # Generic dropdown for menus
+│   │   │   │   ├── zone_header_widget.dart     # “Hand (7) ▼” header with count + dropdown
+│   │   │   │   ├── counter_widget.dart         # Life/turn counters (top-left bar)
+│   │   │   │   └── import_url_dialog.dart      # ← Dialog for pasting a URL (If the user has the url for loading cards already)
+│   │   │   └── blocs/
+│   │   │       ├── card_simulator_bloc.dart
+│   │   │       ├── card_simulator_event.dart
+│   │   │       └── card_simulator_state.dart
+│   │   ├── domain/
+│   │   │   ├── entities/
+│   │   │   ├── repositories/
+│   │   │   └── usecases/
+│   │   │       └── import_deck_from_url.dart
+│   │   └── data/
+│   │       ├── datasources/
+│   │       │   └── deck_scraper.dart      # will likely need to scrape HTML
+│   │       ├── models/
+│   │       └── repositories/
+└── main.dart
+```
+
+## Naming Conventions
+
+### Files and Directories
+
+1. All file and directory names should use snake_case
+2. Feature directories should be descriptive and domain-specific
+3. Interface files should be prefixed with `i_` (e.g., `i_service.dart`)
+4. State management files should use the suffix matching their type:
+   - Cubit files: `_cubit.dart`
+   - State files: `_state.dart`
+5. Model files should use the suffix `_model.dart`
+6. Widget files should use the suffix `_widget.dart`
+7. DTO files should use the suffix `_dto.dart`
+8. Constant files should be prefixed with `k_` (e.g., `k_sizes.dart`)
+
+### Classes
+
+1. Use PascalCase for class names
+2. Widget classes should match their file names in PascalCase
+3. Interface classes should be prefixed with 'I'
+4. State classes should be suffixed with 'State'
+5. Cubit classes should be suffixed with 'Cubit'
+6. Constant classes should be prefixed with 'K' (e.g., 'KSizes')
+
+### Code Organization
+
+1. Group related widgets in the same directory
+2. Separate concerns into appropriate layers:
+   - application: State management (Cubit, State)
+   - domain: Business logic and interfaces
+   - infrastructure: Concrete implementations of interfaces
+   - presentation: UI components and pages
+3. Core functionality and constants should reside in the core directory
+
+### Layout Constants (KSizes)
+
+1. All UI measurements must use predefined constants from KSizes:
+   - Margins and padding (e.g., KSize.margin4x, KSize.margin8x)
+   - Font sizes (e.g., KSize.fontSizeS, KSize.fontSizeM)
+   - Border radius (e.g., KSize.radiusDefault)
+   - Icon sizes (e.g., KSize.iconS, KSize.iconM)
+   - Component sizes (e.g., KSize.buttonHeight)
+2. Never use hard-coded numeric values for:
+   - Spacing and layout
+   - Typography
+   - Component dimensions
+3. KSizes should follow a consistent scaling system:
+   - Base unit multiplication (e.g., 4x, 8x, 12x for margins)
+   - Semantic naming for sizes (e.g., S, M, L for fonts)
+4. All new layout-related constants should be added to KSizes for reusability
+
+### Widget Structure
+
+1. Main feature widgets should be stateful when managing complex state
+2. Smaller, presentational components should be stateless
+3. Each widget should be in its own file
+4. Test-related widget components should be marked with @visibleForTesting
+
+## Best Practices
+
+1. Keep widget files focused on a single responsibility
+2. Maintain a clear separation between presentation and business logic
+3. Follow a consistent pattern for state management implementation
+4. Implement interfaces for external services
+5. All business logic should be testable and independent of UI
+
+## Testing Guidelines
+
+1. Directory Structure:
+   ```
+   test/
+     └── feature_name/
+         ├── application/
+         │   └── feature_cubit_test.dart
+         ├── domain/
+         │   └── feature_model_test.dart
+         ├── infrastructure/
+         │   ├── dtos/
+         │   │   └── feature_dto_test.dart
+         │   └── feature_service_test.dart
+         └── presentation/
+             ├── feature_page_test.dart
+             └── widgets/
+                 └── feature_widget_test.dart
+   ```
+
+2. Testing Requirements:
+   - All business logic must have unit tests
+   - All widgets must have widget tests
+   - Mock all external dependencies
+   - Test files should mirror source code structure
+
+3. Testing Conventions:
+   - Test files should end with `_test.dart`
+   - Use meaningful test group and test case names
+   - Each test should focus on a single behavior
+   - Maintain test independence (no shared state)
+
+4. Testability Guidelines:
+   - Keep UI logic separate from business logic
+   - Avoid static methods for testable code
+   - Use interfaces for external services
+   - Provide test keys for important UI elements# Flutter Project Structure and Naming Conventions
+
+## Directory Structure
+
+```
+lib/
+  ├── core/
+  │   └── constants/
+  │       └── k_sizes.dart
+  └── feature_name/
+      ├── application/
+      │   ├── feature_cubit.dart
+      │   └── feature_state.dart
+      ├── domain/
+      │   ├── i_feature_service.dart
+      │   └── feature_model.dart
+      ├── infrastructure/
+      │   ├── dtos/
+      │   │   └── feature_dto.dart
+      │   └── feature_service.dart
+      └── presentation/
+          ├── feature_page.dart
+          └── widgets/
+              └── feature_widget.dart
+```
+
+## Naming Conventions
+
+### Files and Directories
+
+1. All file and directory names should use snake_case
+2. Feature directories should be descriptive and domain-specific
+3. Interface files should be prefixed with `i_` (e.g., `i_service.dart`)
+4. State management files should use the suffix matching their type:
+   - Cubit files: `_cubit.dart`
+   - State files: `_state.dart`
+5. Model files should use the suffix `_model.dart`
+6. Widget files should use the suffix `_widget.dart`
+7. DTO files should use the suffix `_dto.dart`
+8. Constant files should be prefixed with `k_` (e.g., `k_sizes.dart`)
+
+### Classes
+
+1. Use PascalCase for class names
+2. Widget classes should match their file names in PascalCase
+3. Interface classes should be prefixed with 'I'
+4. State classes should be suffixed with 'State'
+5. Cubit classes should be suffixed with 'Cubit'
+6. Constant classes should be prefixed with 'K' (e.g., 'KSizes')
+
+### Code Organization
+
+1. Group related widgets in the same directory
+2. Separate concerns into appropriate layers:
+   - application: State management (Cubit, State)
+   - domain: Business logic and interfaces
+   - infrastructure: Concrete implementations of interfaces
+   - presentation: UI components and pages
+3. Core functionality and constants should reside in the core directory
+
+### Layout Constants (KSizes)
+
+1. All UI measurements must use predefined constants from KSizes:
+   - Margins and padding (e.g., KSize.margin4x, KSize.margin8x)
+   - Font sizes (e.g., KSize.fontSizeS, KSize.fontSizeM)
+   - Border radius (e.g., KSize.radiusDefault)
+   - Icon sizes (e.g., KSize.iconS, KSize.iconM)
+   - Component sizes (e.g., KSize.buttonHeight)
+2. Never use hard-coded numeric values for:
+   - Spacing and layout
+   - Typography
+   - Component dimensions
+3. KSizes should follow a consistent scaling system:
+   - Base unit multiplication (e.g., 4x, 8x, 12x for margins)
+   - Semantic naming for sizes (e.g., S, M, L for fonts)
+4. All new layout-related constants should be added to KSizes for reusability
+
+### Widget Structure
+
+1. Main feature widgets should be stateful when managing complex state
+2. Smaller, presentational components should be stateless
+3. Each widget should be in its own file
+4. Test-related widget components should be marked with @visibleForTesting
+
+## Best Practices
+
+1. Keep widget files focused on a single responsibility
+2. Maintain a clear separation between presentation and business logic
+3. Follow a consistent pattern for state management implementation
+4. Implement interfaces for external services
+5. All business logic should be testable and independent of UI
+
+## Testing Guidelines
+
+1. Directory Structure:
+   ```
+   test/
+     └── feature_name/
+         ├── application/
+         │   └── feature_cubit_test.dart
+         ├── domain/
+         │   └── feature_model_test.dart
+         ├── infrastructure/
+         │   ├── dtos/
+         │   │   └── feature_dto_test.dart
+         │   └── feature_service_test.dart
+         └── presentation/
+             ├── feature_page_test.dart
+             └── widgets/
+                 └── feature_widget_test.dart
+   ```
+
+2. Testing Requirements:
+   - All business logic must have unit tests
+   - All widgets must have widget tests
+   - Mock all external dependencies
+   - Test files should mirror source code structure
+
+3. Testing Conventions:
+   - Test files should end with `_test.dart`
+   - Use meaningful test group and test case names
+   - Each test should focus on a single behavior
+   - Maintain test independence (no shared state)
+
+4. Testability Guidelines:
+   - Keep UI logic separate from business logic
+   - Avoid static methods for testable code
+   - Use interfaces for external services
+   - Provide test keys for important UI elements
