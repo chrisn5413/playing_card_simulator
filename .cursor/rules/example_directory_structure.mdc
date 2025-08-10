@@ -1,0 +1,41 @@
+---
+description: example directory structure
+alwaysApply: false
+---
+```
+lib/
+├── core/
+│   ├── error/
+│   ├── utils/
+│   └── constants/
+├── features/
+│   ├── card_simulator/
+│   │   ├── presentation/
+│   │   │   ├── pages/
+│   │   │   │   ├── simulator_page.dart         # Main screen with all zones and UI
+│   │   │   │   └── deck_browser_page.dart      # Web view so user can find deck without needing link
+│   │   │   ├── widgets/
+│   │   │   │   ├── card_widget.dart            # Single card image and interactions
+│   │   │   │   ├── zone_widget.dart            # Base for any zone (deck, hand, battlefield, etc.)
+│   │   │   │   ├── battlefield_widget.dart     # Grid with draggable cards
+│   │   │   │   ├── hand_widget.dart            # Horizontal list of cards
+│   │   │   │   ├── dropdown_menu.dart          # Generic dropdown for menus
+│   │   │   │   ├── zone_header_widget.dart     # “Hand (7) ▼” header with count + dropdown
+│   │   │   │   ├── counter_widget.dart         # Life/turn counters (top-left bar)
+│   │   │   │   └── import_url_dialog.dart      # ← Dialog for pasting a URL (If the user has the url for loading cards already)
+│   │   │   └── blocs/
+│   │   │       ├── card_simulator_bloc.dart
+│   │   │       ├── card_simulator_event.dart
+│   │   │       └── card_simulator_state.dart
+│   │   ├── domain/
+│   │   │   ├── entities/
+│   │   │   ├── repositories/
+│   │   │   └── usecases/
+│   │   │       └── import_deck_from_url.dart
+│   │   └── data/
+│   │       ├── datasources/
+│   │       │   └── deck_scraper.dart      # will likely need to scrape HTML
+│   │       ├── models/
+│   │       └── repositories/
+└── main.dart
+```

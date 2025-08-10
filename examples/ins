@@ -1,0 +1,15 @@
+Please create an app that looks like and performs like the given image. The app is a virtual card sandbox that allows the user to load interactable (draggable) playing cards that can be moved between different zones. The zones are the field/battlefield, hand, library, graveyard, exile, and command zone. There are no explicit rules because this is not a game, but a simulation of cards in real life. All zones and cards are interactable and have their respective context menus. Please follow flutter clean architecture and conventions based on the files in the rules folder. Look at the example_directory_structure.mdc file for a basefile for what widgets may be necessary but adjust based on the clean architecture. If you need more images, check the @examples/ folder for more of what the app should look like.
+
+15% of 272K gpt5 tokens
+
+Change the X in the corner into an arrow that points in a circle and also make it ask the user for confirmation before resetting the board. If the board is reset, place all cards back into their original zone shuffled. Make it so that cards look visibly selected and are draggable between zones. Refer to @card-context-1.png ,@card-context-2.png, @card-context-3.png , and @card-context-4.png   for an example of what it looks like when selecting a card (it is highlighted), what a card's context menu should look like (three dots that appear after selecting the card, which let the user see the context menu for the card), and how cards in the library appear on the screen (the generic card back is shown). The context menu of a card depends on which zone it is currently in (have options that move the card to specific zones directly without the user dragging). Unless given the url of the image of the back of a card when importing it in (include another url field for the back when importing in case the user wants cards to have backs), assume that all cards have a generic back, which is just a white background with a thick black outline and text in the middle that says "CARD BACK, NO IMAGE". Tapping on the back of a card while it is in the library automatically draws the top card from the library zone into the hand zone. Make it so that when "Show Other Zones" is tapped, a mini popup with zones that the user can drag cards between appears, check @other-zones-context-menu.png  for reference. Continue with clean architecture..
+
+21% of 272K gpt5 tokens
+
+The error image in red is what appears when I try tapping "Show Other Zones". The Library does not show that there is a card in the zone like in @initial-page.png , It should show the generic back of a card (a temporary placeholder for now). The error image in grey that is included is what appears when I attempt to move the card from my hand to the field, it doesn't work properly
+
+24% of 272K gpt5 tokens
+
+No errors appear when attempting to move cards between zones but it still does not work. Pressing "Show Other Zones" twice shows the error message included in the image. Also, the placeholder card shown should be below the library text like how @initial-page has it, what you have currently is to the side and very small
+
+28% of 272K gpt5 tokens

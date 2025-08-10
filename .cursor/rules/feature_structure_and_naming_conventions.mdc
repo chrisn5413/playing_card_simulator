@@ -1,47 +1,33 @@
 ---
-alwaysApply: true
+description: feature structure and naming conventions
+alwaysApply: false
 ---
-
 # Flutter Project Structure and Naming Conventions
 
 ## Directory Structure
 
 ```
 lib/
-├── core/
-│   ├── error/
-│   ├── utils/
-│   └── constants/
-├── features/
-│   ├── card_simulator/
-│   │   ├── presentation/
-│   │   │   ├── pages/
-│   │   │   │   ├── simulator_page.dart         # Main screen with all zones and UI
-│   │   │   │   └── deck_browser_page.dart      # Web view so user can find deck without needing link
-│   │   │   ├── widgets/
-│   │   │   │   ├── card_widget.dart            # Single card image and interactions
-│   │   │   │   ├── zone_widget.dart            # Base for any zone (deck, hand, battlefield, etc.)
-│   │   │   │   ├── battlefield_widget.dart     # Grid with draggable cards
-│   │   │   │   ├── hand_widget.dart            # Horizontal list of cards
-│   │   │   │   ├── dropdown_menu.dart          # Generic dropdown for menus
-│   │   │   │   ├── zone_header_widget.dart     # “Hand (7) ▼” header with count + dropdown
-│   │   │   │   ├── counter_widget.dart         # Life/turn counters (top-left bar)
-│   │   │   │   └── import_url_dialog.dart      # ← Dialog for pasting a URL (If the user has the url for loading cards already)
-│   │   │   └── blocs/
-│   │   │       ├── card_simulator_bloc.dart
-│   │   │       ├── card_simulator_event.dart
-│   │   │       └── card_simulator_state.dart
-│   │   ├── domain/
-│   │   │   ├── entities/
-│   │   │   ├── repositories/
-│   │   │   └── usecases/
-│   │   │       └── import_deck_from_url.dart
-│   │   └── data/
-│   │       ├── datasources/
-│   │       │   └── deck_scraper.dart      # will likely need to scrape HTML
-│   │       ├── models/
-│   │       └── repositories/
-└── main.dart
+  ├── core/
+  │   └── constants/
+  │       └── k_sizes.dart
+  │
+  └── features/   
+      └── feature_name/
+          ├── application/
+          │   ├── feature_cubit.dart
+          │   └── feature_state.dart
+          ├── domain/
+          │   ├── i_feature_service.dart
+          │   └── feature_model.dart
+          ├── infrastructure/
+          │   ├── dtos/
+          │   │   └── feature_dto.dart
+          │   └── feature_service.dart
+          └── presentation/
+              ├── feature_page.dart
+              └── widgets/
+                  └── feature_widget.dart
 ```
 
 ## Naming Conventions
@@ -113,22 +99,23 @@ lib/
 ## Testing Guidelines
 
 1. Directory Structure:
-   ```
-   test/
-     └── feature_name/
-         ├── application/
-         │   └── feature_cubit_test.dart
-         ├── domain/
-         │   └── feature_model_test.dart
-         ├── infrastructure/
-         │   ├── dtos/
-         │   │   └── feature_dto_test.dart
-         │   └── feature_service_test.dart
-         └── presentation/
-             ├── feature_page_test.dart
-             └── widgets/
-                 └── feature_widget_test.dart
-   ```
+```
+test/
+  └── features/   
+      └── feature_name/
+          ├── application/
+          │   └── feature_cubit_test.dart
+          ├── domain/
+          │   └── feature_model_test.dart
+          ├── infrastructure/
+          │   ├── dtos/
+          │   │   └── feature_dto_test.dart
+          │   └── feature_service_test.dart
+          └── presentation/
+              ├── feature_page_test.dart
+              └── widgets/
+                  └── feature_widget_test.dart
+```
 
 2. Testing Requirements:
    - All business logic must have unit tests
@@ -155,21 +142,22 @@ lib/
   ├── core/
   │   └── constants/
   │       └── k_sizes.dart
-  └── feature_name/
-      ├── application/
-      │   ├── feature_cubit.dart
-      │   └── feature_state.dart
-      ├── domain/
-      │   ├── i_feature_service.dart
-      │   └── feature_model.dart
-      ├── infrastructure/
-      │   ├── dtos/
-      │   │   └── feature_dto.dart
-      │   └── feature_service.dart
-      └── presentation/
-          ├── feature_page.dart
-          └── widgets/
-              └── feature_widget.dart
+  └── features/   
+      └── feature_name/
+          ├── application/
+          │   ├── feature_cubit.dart
+          │   └── feature_state.dart
+          ├── domain/
+          │   ├── i_feature_service.dart
+          │   └── feature_model.dart
+          ├── infrastructure/
+          │   ├── dtos/
+          │   │   └── feature_dto.dart
+          │   └── feature_service.dart
+          └── presentation/
+              ├── feature_page.dart
+              └── widgets/
+                  └── feature_widget.dart
 ```
 
 ## Naming Conventions
@@ -241,22 +229,23 @@ lib/
 ## Testing Guidelines
 
 1. Directory Structure:
-   ```
-   test/
-     └── feature_name/
-         ├── application/
-         │   └── feature_cubit_test.dart
-         ├── domain/
-         │   └── feature_model_test.dart
-         ├── infrastructure/
-         │   ├── dtos/
-         │   │   └── feature_dto_test.dart
-         │   └── feature_service_test.dart
-         └── presentation/
-             ├── feature_page_test.dart
-             └── widgets/
-                 └── feature_widget_test.dart
-   ```
+```
+test/
+  └── features/   
+      └── feature_name/
+          ├── application/
+          │   └── feature_cubit_test.dart
+          ├── domain/
+          │   └── feature_model_test.dart
+          ├── infrastructure/
+          │   ├── dtos/
+          │   │   └── feature_dto_test.dart
+          │   └── feature_service_test.dart
+          └── presentation/
+              ├── feature_page_test.dart
+              └── widgets/
+                  └── feature_widget_test.dart
+```
 
 2. Testing Requirements:
    - All business logic must have unit tests
