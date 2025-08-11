@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../application/card_simulator_cubit.dart';
 import '../../domain/entities/playing_card_model.dart';
@@ -10,15 +11,22 @@ class BattlefieldWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        color: const Color(0xFF1E1E1E),
-        child: Stack(
-          children: [
-            Positioned.fill(child: CustomPaint(painter: _GridPainter())),
-            ...cards.map((card) => _BattlefieldDraggableCard(card: card)),
-          ],
+    return DottedBorder(
+      color: Colors.white24,
+      strokeWidth: 1.2,
+      dashPattern: const [6, 4],
+      borderType: BorderType.RRect,
+      radius: const Radius.circular(14),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          color: const Color(0xFF1E1E1E),
+          child: Stack(
+            children: [
+              Positioned.fill(child: CustomPaint(painter: _GridPainter())),
+              ...cards.map((card) => _BattlefieldDraggableCard(card: card)),
+            ],
+          ),
         ),
       ),
     );

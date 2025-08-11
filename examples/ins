@@ -1,15 +1,110 @@
-Please create an app that looks like and performs like the given image. The app is a virtual card sandbox that allows the user to load interactable (draggable) playing cards that can be moved between different zones. The zones are the field/battlefield, hand, library, graveyard, exile, and command zone. There are no explicit rules because this is not a game, but a simulation of cards in real life. All zones and cards are interactable and have their respective context menus. Please follow flutter clean architecture and conventions based on the files in the rules folder. Look at the example_directory_structure.mdc file for a basefile for what widgets may be necessary but adjust based on the clean architecture. If you need more images, check the @examples/ folder for more of what the app should look like.
+Please create an app that looks like and performs like the given image. The app is a virtual 
+card sandbox that allows the user to load interactable (draggable) playing cards that can be 
+moved between different zones. The zones are the field/battlefield, hand, library, graveyard, 
+exile, and command zone. There are no explicit rules because this is not a game, but a 
+simulation of cards in real life. All zones and cards are interactable and have their 
+respective context menus. Please follow flutter clean architecture and conventions based 
+on the files in the rules folder. Look at the example_directory_structure.mdc file for a 
+basefile for what widgets may be necessary but adjust based on the clean architecture. If 
+you need more images, check the @examples/ folder for more of what the app should look like.
 
 15% of 272K gpt5 tokens
 
-Change the X in the corner into an arrow that points in a circle and also make it ask the user for confirmation before resetting the board. If the board is reset, place all cards back into their original zone shuffled. Make it so that cards look visibly selected and are draggable between zones. Refer to @card-context-1.png ,@card-context-2.png, @card-context-3.png , and @card-context-4.png   for an example of what it looks like when selecting a card (it is highlighted), what a card's context menu should look like (three dots that appear after selecting the card, which let the user see the context menu for the card), and how cards in the library appear on the screen (the generic card back is shown). The context menu of a card depends on which zone it is currently in (have options that move the card to specific zones directly without the user dragging). Unless given the url of the image of the back of a card when importing it in (include another url field for the back when importing in case the user wants cards to have backs), assume that all cards have a generic back, which is just a white background with a thick black outline and text in the middle that says "CARD BACK, NO IMAGE". Tapping on the back of a card while it is in the library automatically draws the top card from the library zone into the hand zone. Make it so that when "Show Other Zones" is tapped, a mini popup with zones that the user can drag cards between appears, check @other-zones-context-menu.png  for reference. Continue with clean architecture..
+Change the X in the corner into an arrow that points in a circle and also make it ask the user 
+for confirmation before resetting the board. If the board is reset, place all cards back into 
+their original zone shuffled. Make it so that cards look visibly selected and are draggable 
+between zones. Refer to @card-context-1.png ,@card-context-2.png, @card-context-3.png , and 
+@card-context-4.png   for an example of what it looks like when selecting a card 
+(it is highlighted), what a card's context menu should look like (three dots that appear after 
+selecting the card, which let the user see the context menu for the card), and how cards in the 
+library appear on the screen (the generic card back is shown). The context menu of a card 
+depends on which zone it is currently in (have options that move the card to specific zones 
+directly without the user dragging). Unless given the url of the image of the back of a card 
+when importing it in (include another url field for the back when importing in case the user 
+wants cards to have backs), assume that all cards have a generic back, which is just a white 
+background with a thick black outline and text in the middle that says "CARD BACK, NO IMAGE". 
+Tapping on the back of a card while it is in the library automatically draws the top card from 
+the library zone into the hand zone. Make it so that when "Show Other Zones" is tapped, a mini 
+popup with zones that the user can drag cards between appears, check @other-zones-context-menu.png 
+for reference. Continue with clean architecture..
 
 21% of 272K gpt5 tokens
 
-The error image in red is what appears when I try tapping "Show Other Zones". The Library does not show that there is a card in the zone like in @initial-page.png , It should show the generic back of a card (a temporary placeholder for now). The error image in grey that is included is what appears when I attempt to move the card from my hand to the field, it doesn't work properly
+The error image in red is what appears when I try tapping "Show Other Zones". The Library does 
+not show that there is a card in the zone like in @initial-page.png , It should show the generic 
+back of a card (a temporary placeholder for now). The error image in grey that is included is 
+what appears when I attempt to move the card from my hand to the field, it doesn't work properly
 
 24% of 272K gpt5 tokens
 
-No errors appear when attempting to move cards between zones but it still does not work. Pressing "Show Other Zones" twice shows the error message included in the image. Also, the placeholder card shown should be below the library text like how @initial-page has it, what you have currently is to the side and very small
+No errors appear when attempting to move cards between zones but it still does not work. 
+Pressing "Show Other Zones" twice shows the error message included in the image. Also, the 
+placeholder card shown should be below the library text like how @initial-page has it, what 
+you have currently is to the side and very small
+
+28% of 272K gpt5 tokens
+
+Next day: 
+Add a button labeled "load deck" to the left of the reset button at the top right of the 
+app. Make it open to a menu where the user can load previously saved decks, or open a 
+window to let the user load a deck from a folder of their choice. The folder contains 
+all cards as image files, import those images as cards into the app and make sure the 
+deck appears in the previously saved decks menu. Ensure that if the reset button is 
+pressed, the user does not need to re-import the deck and the current deck is reset 
+properly. Currently, the library zone is underneath the hand zone, I want it to be lined 
+up to the hand zone but on the right side of the screen (check the included image for to 
+see what I mean). Reduce the horizontal size of the hand zone if you must, to keep them 
+on the same level. Additionally, the library should only show a card visually if there 
+are cards in the library. Make a dotted outline around all zones that is slightly larger 
+than the zone it encapsulates, that way users can tell if a zone is empty. Make sure to 
+correct the library such that if it is empty, no cards/placeholder image is shown. Be 
+sure to follow flutter clean architecture while implementing all of this (check the 
+rules folder provided for reference).
+
+16% of 272K gpt5 tokens
+
+When using the context menu of a card in my hand to move it to the battlefield an error 
+occurs which freezes the application, refer to the image I linked for the error. When 
+drawing cards from the library into my hand, if the number of cards lined horizontally 
+exceeds the visible size of the hand zone I can no longer see it. Make it so that 
+instead, cards stack slightly on top of each other when adding more and more cards, 
+effectively making it look like fanned out cards. Only fan when cards can no longer be 
+lined up horizontally with full visiblilty. Additionally, since cards will be harder to 
+read when they are fanned, have a large popup of the selected card appear above the 
+battlefield, a preview of the card. Have the preview close if the user taps anywhere 
+but the preview. Allow the user to pinch zoom the preview, but the zoom is limited to 
+the zone, don't increase the card size on the screen.
+
+23% of 272K gpt5 tokens
+
+The preview works but I can't get it to close when tapping elsewhere. Fanning the cards 
+almost works, however there doesn't seem to be a hard limit on the width hand zone, thus 
+cards still end up not visible (going beyond the visible screen), though maybe that is an 
+issue with the testing environment. Is there a way you can set the maximum width of the 
+hand zone to be proportionate to the width of the window/application/device? It looks 
+like its about 3/4th the width of the window (the last 1/4 looks like it would be the 
+library zone). Also, can you make it so I can just drag the card into the battlefield. 
+Make it so the user doesn't need to long press to select cards, just tapping does the 
+preview. Then make it so cards can be dragged between zones (also without long pressing) 
+and if the user's finger hovers above a zone before letting go of the drag, move the card 
+to the proper place within the zone.
+
+24% of 272K gpt5 tokens
+
+The cards fan when adding, but still go past the hand zone/dotted boundary. Currently, 
+they only rotate. They should also be overlapping more with every new card (I included 
+in image that showed the cards tilting, but not overlapping). I provided another image 
+of an error that occurs when I attempt to drag a card. Tapping outside of the preview 
+still does not close it (if it helps, outside the preview should mean anything but the 
+preview)
+
+26% of 272K gpt5 tokens
+
+The cards do fan and overlap now, but it should be based on the amount of space all 
+the cards use in the zone. I provided a screenshot of the whole window. Currently 
+adding more than 4 cards makes them overlap but there is a lot of empty space to the 
+right of the cards. The hand should take up the whole zone, overlapping when needed 
+to make it look better/more even. Additionally the app freezes up still when I attempt 
+to drag the card from my hand to the battlefield
 
 28% of 272K gpt5 tokens

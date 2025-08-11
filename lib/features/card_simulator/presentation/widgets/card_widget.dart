@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import '../../application/card_simulator_cubit.dart';
 import '../../domain/entities/playing_card_model.dart';
@@ -8,14 +9,24 @@ class CardWidget extends StatelessWidget {
   final double width;
   final double height;
   final VoidCallback? onDelete;
-  const CardWidget({super.key, required this.card, required this.width, required this.height, this.onDelete});
+  final bool interactive;
+  const CardWidget({
+    super.key,
+    required this.card,
+    required this.width,
+    required this.height,
+    this.onDelete,
+    this.interactive = true,
+  });
 
   @override
   Widget build(BuildContext context) {
     final showBack = card.zone == Zone.library && card.isFaceDown;
     final image = showBack
         ? _backWidget()
-        : Image.network(card.imageUrl, fit: BoxFit.cover, errorBuilder: (_, __, ___) => _backWidget());
+        : (card.imageUrl.startsWith('file:')
+            ? Image.file(File.fromUri(Uri.parse(card.imageUrl)), fit: BoxFit.cover, errorBuilder: (_, __, ___) => _backWidget())
+            : Image.network(card.imageUrl, fit: BoxFit.cover, errorBuilder: (_, __, ___) => _backWidget()));
 
     final content = AspectRatio(
       aspectRatio: width / height,
@@ -33,55 +44,20 @@ class CardWidget extends StatelessWidget {
       ),
     );
 
-    final isSelected = context.select<CardSimulatorCubit, bool>((cubit) => cubit.state.selectedCardId == card.id);
+    final isSelected = interactive
+        ? context.select<CardSimulatorCubit, bool>((cubit) => cubit.state.selectedCardId == card.id)
+        : false;
 
     return GestureDetector(
       onTap: () {
+        if (!interactive) return;
         if (card.zone == Zone.library && showBack) {
-          // Draw top card to hand
           context.read<CardSimulatorCubit>().draw(1);
         } else {
           context.read<CardSimulatorCubit>().selectCard(isSelected ? null : card.id);
         }
       },
-      onDoubleTap: () => context.read<CardSimulatorCubit>().toggleTapped(card.id),
-      onLongPressStart: (d) async {
-        context.read<CardSimulatorCubit>().selectCard(card.id);
-        final selected = await showMenu<String>(
-          context: context,
-          position: RelativeRect.fromLTRB(d.globalPosition.dx, d.globalPosition.dy, 0, 0),
-          color: Colors.grey.shade800,
-          items: _menuForZone(card.zone),
-        );
-        final cubit = context.read<CardSimulatorCubit>();
-        switch (selected) {
-          case 'to_battlefield':
-            cubit.moveCard(card.id, Zone.battlefield, position: const Offset(40, 40));
-            break;
-          case 'to_hand':
-            cubit.moveCard(card.id, Zone.hand);
-            break;
-          case 'to_library':
-            cubit.moveCard(card.id, Zone.library);
-            break;
-          case 'to_grave':
-            cubit.moveCard(card.id, Zone.graveyard);
-            break;
-          case 'to_exile':
-            cubit.moveCard(card.id, Zone.exile);
-            break;
-          case 'to_command':
-            cubit.moveCard(card.id, Zone.command);
-            break;
-          case 'tap':
-            cubit.toggleTapped(card.id);
-            break;
-          case 'delete':
-            onDelete?.call();
-            cubit.deleteCard(card.id);
-            break;
-        }
-      },
+      onDoubleTap: () { if (interactive) context.read<CardSimulatorCubit>().toggleTapped(card.id); },
       child: Stack(
         children: [
           Transform.rotate(

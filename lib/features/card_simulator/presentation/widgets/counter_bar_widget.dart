@@ -8,6 +8,7 @@ class CounterBarWidget extends StatelessWidget {
   final VoidCallback onNextTurn;
   final VoidCallback onReset;
   final VoidCallback onConfirmReset;
+  final VoidCallback onLoadDeck;
 
   const CounterBarWidget({
     super.key,
@@ -18,6 +19,7 @@ class CounterBarWidget extends StatelessWidget {
     required this.onNextTurn,
     required this.onReset,
     required this.onConfirmReset,
+    required this.onLoadDeck,
   });
 
   @override
@@ -43,6 +45,12 @@ class CounterBarWidget extends StatelessWidget {
             child: const Text('Next'),
           ),
           const Spacer(),
+          OutlinedButton(
+            onPressed: onLoadDeck,
+            style: OutlinedButton.styleFrom(foregroundColor: Colors.white70),
+            child: const Text('Load deck'),
+          ),
+          const SizedBox(width: 8),
           IconButton(
             tooltip: 'Reset',
             icon: const Icon(Icons.autorenew, color: Colors.purpleAccent),

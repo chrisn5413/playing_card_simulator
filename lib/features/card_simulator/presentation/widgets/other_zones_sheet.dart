@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../application/card_simulator_cubit.dart';
 import '../../application/card_simulator_state.dart';
@@ -65,21 +66,28 @@ class _ZoneList extends StatelessWidget {
         const SizedBox(height: 8),
         Text(title, style: const TextStyle(color: Colors.white)),
         const SizedBox(height: 8),
-        SizedBox(
-          height: 110,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            itemBuilder: (context, index) {
-              final c = cards[index];
+        DottedBorder(
+          color: Colors.white24,
+          strokeWidth: 1.2,
+          dashPattern: const [6, 4],
+          borderType: BorderType.RRect,
+          radius: const Radius.circular(10),
+          child: SizedBox(
+            height: 110,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemBuilder: (context, index) {
+                final c = cards[index];
               return Draggable<PlayingCardModel>(
-                data: c,
-                feedback: Material(color: Colors.transparent, child: CardWidget(card: c, width: 72, height: 100)),
-                childWhenDragging: const SizedBox(width: 72, height: 100),
-                child: CardWidget(card: c, width: 72, height: 100),
-              );
-            },
-            separatorBuilder: (_, __) => const SizedBox(width: 8),
-            itemCount: cards.length,
+                  data: c,
+                feedback: Material(color: Colors.transparent, child: CardWidget(card: c, width: 72, height: 100, interactive: false)),
+                  childWhenDragging: const SizedBox(width: 72, height: 100),
+                  child: CardWidget(card: c, width: 72, height: 100),
+                );
+              },
+              separatorBuilder: (_, __) => const SizedBox(width: 8),
+              itemCount: cards.length,
+            ),
           ),
         ),
       ],
