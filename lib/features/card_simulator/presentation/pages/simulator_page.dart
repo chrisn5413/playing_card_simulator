@@ -107,15 +107,13 @@ class _SimulatorPageState
                                 ),
                           ),
                         ),
-                        // Large preview overlay (dismiss on any tap)
+                        // Preview overlay (tap preview to close)
                         if (state
                                 .selectedCardId !=
                             null)
                           Positioned.fill(
-                            child: Material(
-                              color:
-                                  Colors.black54,
-                              child: InkWell(
+                            child: Center(
+                              child: GestureDetector(
                                 onTap: () => context
                                     .read<
                                       CardSimulatorCubit
@@ -123,41 +121,38 @@ class _SimulatorPageState
                                     .selectCard(
                                       null,
                                     ),
-                                child: Center(
-                                  child: Container(
-                                    constraints:
-                                        const BoxConstraints(
-                                          maxWidth:
-                                              320,
-                                          maxHeight:
-                                              460,
+                                child: Container(
+                                  constraints:
+                                      const BoxConstraints(
+                                        maxWidth:
+                                            320,
+                                        maxHeight:
+                                            460,
+                                      ),
+                                  decoration: BoxDecoration(
+                                    borderRadius:
+                                        BorderRadius.circular(
+                                          12,
                                         ),
-                                    decoration: BoxDecoration(
-                                      borderRadius:
-                                          BorderRadius.circular(
-                                            12,
-                                          ),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors
-                                              .black
-                                              .withOpacity(
-                                                0.6,
-                                              ),
-                                          blurRadius:
-                                              16,
-                                        ),
-                                      ],
-                                    ),
-                                    child: InteractiveViewer(
-                                      minScale: 1,
-                                      maxScale:
-                                          2.5,
-                                      clipBehavior:
-                                          Clip.hardEdge,
-                                      child:
-                                          _SelectedCardPreview(),
-                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors
+                                            .black
+                                            .withOpacity(
+                                              0.6,
+                                            ),
+                                        blurRadius:
+                                            16,
+                                      ),
+                                    ],
+                                  ),
+                                  child: InteractiveViewer(
+                                    minScale: 1,
+                                    maxScale: 2.5,
+                                    clipBehavior:
+                                        Clip.hardEdge,
+                                    child:
+                                        _SelectedCardPreview(),
                                   ),
                                 ),
                               ),
@@ -659,21 +654,28 @@ class _HandDropAreaState
       onWillAcceptWithDetails: (d) {
         setState(
           () => placeholderIndex =
-              _computeIndexFromPosition(context),
+              _computeIndexFromPosition(
+                context,
+                d.offset,
+              ),
         );
         return true;
       },
-      onMove: (details) {
-        setState(
-          () => placeholderIndex =
-              _computeIndexFromPosition(context),
-        );
-      },
+      onMove: (details) => setState(
+        () => placeholderIndex =
+            _computeIndexFromPosition(
+              context,
+              details.offset,
+            ),
+      ),
       onLeave: (_) =>
           setState(() => placeholderIndex = null),
       onAcceptWithDetails: (d) {
         final index =
-            _computeIndexFromPosition(context) ??
+            _computeIndexFromPosition(
+              context,
+              d.offset,
+            ) ??
             widget.cards.length;
         context
             .read<CardSimulatorCubit>()
@@ -686,47 +688,49 @@ class _HandDropAreaState
         const cardH = 100.0;
         final children = <Widget>[];
 
-        for (int i = 0; i < cards.length; i++) {
+        for (int i = 0; i <= cards.length; i++) {
           if (placeholderIndex == i) {
             children.add(_ghost(cardW, cardH));
           }
-          children.add(
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 4,
-              ),
-              child: Draggable<PlayingCardModel>(
-                data: cards[i],
-                dragAnchorStrategy:
-                    pointerDragAnchorStrategy,
-                feedback: SizedBox(
-                  width: cardW,
-                  height: cardH,
-                  child: Material(
-                    color: Colors.transparent,
-                    child: CardWidget(
-                      card: cards[i],
-                      width: cardW,
-                      height: cardH,
-                      interactive: false,
+          if (i < cards.length) {
+            final c = cards[i];
+            children.add(
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(
+                      horizontal: 4,
+                    ),
+                child: Draggable<PlayingCardModel>(
+                  data: c,
+                  dragAnchorStrategy:
+                      pointerDragAnchorStrategy,
+                  feedback: SizedBox(
+                    width: cardW,
+                    height: cardH,
+                    child: Material(
+                      color: Colors.transparent,
+                      child: CardWidget(
+                        card: c,
+                        width: cardW,
+                        height: cardH,
+                        interactive: false,
+                      ),
                     ),
                   ),
-                ),
-                childWhenDragging: const SizedBox(
-                  width: cardW,
-                  height: cardH,
-                ),
-                child: CardWidget(
-                  card: cards[i],
-                  width: cardW,
-                  height: cardH,
+                  childWhenDragging:
+                      const SizedBox(
+                        width: cardW,
+                        height: cardH,
+                      ),
+                  child: CardWidget(
+                    card: c,
+                    width: cardW,
+                    height: cardH,
+                  ),
                 ),
               ),
-            ),
-          );
-        }
-        if (placeholderIndex == cards.length) {
-          children.add(_ghost(cardW, cardH));
+            );
+          }
         }
 
         return Container(
@@ -757,15 +761,19 @@ class _HandDropAreaState
 
   int? _computeIndexFromPosition(
     BuildContext context,
+    Offset globalPosition,
   ) {
     final box =
         context.findRenderObject() as RenderBox?;
     if (box == null) return null;
-    final local = box.globalToLocal(Offset.zero);
+    final local = box.globalToLocal(
+      globalPosition,
+    );
     const cardW = 72.0;
     const spacing = 8.0;
     final x =
-        local.dx - 12; // approximation fallback
+        local.dx -
+        12; // account for horizontal padding
     if (x <= 0) return 0;
     final slot = (x / (cardW + spacing)).floor();
     return slot.clamp(0, widget.cards.length);
