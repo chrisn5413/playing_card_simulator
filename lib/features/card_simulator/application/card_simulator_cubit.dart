@@ -10,10 +10,14 @@ import '../domain/entities/deck_model.dart';
 import '../domain/repositories/deck_repository.dart';
 import '../infrastructure/repositories/shared_prefs_deck_repository.dart';
 
-class CardSimulatorCubit extends Cubit<CardSimulatorState> {
-  CardSimulatorCubit({DeckRepository? deckRepository})
-      : _deckRepository = deckRepository ?? SharedPrefsDeckRepository(),
-        super(CardSimulatorState.initial());
+class CardSimulatorCubit
+    extends Cubit<CardSimulatorState> {
+  CardSimulatorCubit({
+    DeckRepository? deckRepository,
+  }) : _deckRepository =
+           deckRepository ??
+           SharedPrefsDeckRepository(),
+       super(CardSimulatorState.initial());
 
   final _uuid = const Uuid();
   final DeckRepository _deckRepository;
@@ -22,17 +26,30 @@ class CardSimulatorCubit extends Cubit<CardSimulatorState> {
     // Optionally seed with a dummy library card
   }
 
-  void reset() => emit(CardSimulatorState.initial());
+  void reset() =>
+      emit(CardSimulatorState.initial());
 
-  Future<void> confirmAndReset(BuildContext context) async {
+  Future<void> confirmAndReset(
+    BuildContext context,
+  ) async {
     final shouldReset = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('Reset Board?'),
-        content: const Text('This will return all cards to their original zones and shuffle.'),
+        content: const Text(
+          'This will return all cards to their original zones and shuffle.',
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-          FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('Reset')),
+          TextButton(
+            onPressed: () =>
+                Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () =>
+                Navigator.pop(context, true),
+            child: const Text('Reset'),
+          ),
         ],
       ),
     );
@@ -47,7 +64,11 @@ class CardSimulatorCubit extends Cubit<CardSimulatorState> {
     final command = <PlayingCardModel>[];
 
     for (final c in all) {
-      final original = c.copyWith(zone: c.originZone, position: null, isTapped: false);
+      final original = c.copyWith(
+        zone: c.originZone,
+        position: null,
+        isTapped: false,
+      );
       switch (original.originZone) {
         case Zone.battlefield:
           battlefield.add(original);
@@ -76,25 +97,33 @@ class CardSimulatorCubit extends Cubit<CardSimulatorState> {
     exile.shuffle();
     command.shuffle();
 
-    emit(CardSimulatorState(
-      battlefield: battlefield,
-      hand: hand,
-      library: library,
-      graveyard: graveyard,
-      exile: exile,
-      command: command,
-      life: 40,
-      turn: 1,
-      selectedCardId: null,
-      currentDeckName: state.currentDeckName,
-    ));
+    emit(
+      CardSimulatorState(
+        battlefield: battlefield,
+        hand: hand,
+        library: library,
+        graveyard: graveyard,
+        exile: exile,
+        command: command,
+        life: 40,
+        turn: 1,
+        selectedCardId: null,
+        currentDeckName: state.currentDeckName,
+      ),
+    );
   }
 
-  void incrementLife() => emit(state.copyWith(life: state.life + 1));
-  void decrementLife() => emit(state.copyWith(life: state.life - 1));
-  void nextTurn() => emit(state.copyWith(turn: state.turn + 1));
+  void incrementLife() =>
+      emit(state.copyWith(life: state.life + 1));
+  void decrementLife() =>
+      emit(state.copyWith(life: state.life - 1));
+  void nextTurn() =>
+      emit(state.copyWith(turn: state.turn + 1));
 
-  void addCardToLibrary({required String name, required String imageUrl}) {
+  void addCardToLibrary({
+    required String name,
+    required String imageUrl,
+  }) {
     final card = PlayingCardModel(
       id: _uuid.v4(),
       name: name,
@@ -103,23 +132,44 @@ class CardSimulatorCubit extends Cubit<CardSimulatorState> {
       isFaceDown: true,
       originZone: Zone.library,
     );
-    emit(state.copyWith(library: [card, ...state.library]));
+    emit(
+      state.copyWith(
+        library: [card, ...state.library],
+      ),
+    );
   }
 
   void draw(int count) {
     if (state.library.isEmpty) return;
-    final drawn = state.library.take(count).toList();
-    final remaining = state.library.skip(count).toList();
+    final drawn = state.library
+        .take(count)
+        .toList();
+    final remaining = state.library
+        .skip(count)
+        .toList();
     final updated = [
       ...state.hand,
-      ...drawn.map((c) => c.copyWith(zone: Zone.hand, isFaceDown: false)),
+      ...drawn.map(
+        (c) => c.copyWith(
+          zone: Zone.hand,
+          isFaceDown: false,
+        ),
+      ),
     ];
-    emit(state.copyWith(hand: updated, library: remaining));
+    emit(
+      state.copyWith(
+        hand: updated,
+        library: remaining,
+      ),
+    );
   }
 
   // Deck loading
-  Future<void> importDeckFromFolder(BuildContext context) async {
-    final result = await FilePicker.platform.getDirectoryPath();
+  Future<void> importDeckFromFolder(
+    BuildContext context,
+  ) async {
+    final result = await FilePicker.platform
+        .getDirectoryPath();
     if (result == null) return;
     final dir = Directory(result);
     if (!await dir.exists()) return;
@@ -127,87 +177,147 @@ class CardSimulatorCubit extends Cubit<CardSimulatorState> {
         .list()
         .where((e) => e is File)
         .map((e) => e.path)
-        .where((p) => p.toLowerCase().endsWith('.png') || p.toLowerCase().endsWith('.jpg') || p.toLowerCase().endsWith('.jpeg'))
+        .where(
+          (p) =>
+              p.toLowerCase().endsWith('.png') ||
+              p.toLowerCase().endsWith('.jpg') ||
+              p.toLowerCase().endsWith('.jpeg'),
+        )
         .toList();
     if (images.isEmpty) return;
-    final name = dir.path.split(Platform.pathSeparator).last;
-    final deck = DeckModel(name: name, imagePaths: images);
+    final name = dir.path
+        .split(Platform.pathSeparator)
+        .last;
+    final deck = DeckModel(
+      name: name,
+      imagePaths: images,
+    );
     await _deckRepository.saveDeck(deck);
     _loadDeck(deck);
   }
 
-  Future<List<DeckModel>> loadSavedDecks() => _deckRepository.loadSavedDecks();
+  Future<List<DeckModel>> loadSavedDecks() =>
+      _deckRepository.loadSavedDecks();
 
   Future<void> loadDeckByName(String name) async {
-    final decks = await _deckRepository.loadSavedDecks();
-    final deck = decks.firstWhere((d) => d.name == name, orElse: () => decks.first);
+    final decks = await _deckRepository
+        .loadSavedDecks();
+    final deck = decks.firstWhere(
+      (d) => d.name == name,
+      orElse: () => decks.first,
+    );
     _loadDeck(deck);
   }
 
   void _loadDeck(DeckModel deck) {
     final library = deck.imagePaths
-        .map((path) => PlayingCardModel(
-              id: _uuid.v4(),
-              name: _fileName(path),
-              imageUrl: File(path).uri.toString(),
-              zone: Zone.library,
-              isFaceDown: true,
-              originZone: Zone.library,
-            ))
+        .map(
+          (path) => PlayingCardModel(
+            id: _uuid.v4(),
+            name: _fileName(path),
+            imageUrl: File(path).uri.toString(),
+            zone: Zone.library,
+            isFaceDown: true,
+            originZone: Zone.library,
+          ),
+        )
         .toList();
     library.shuffle();
-    emit(CardSimulatorState(
-      battlefield: const [],
-      hand: const [],
-      library: library,
-      graveyard: const [],
-      exile: const [],
-      command: const [],
-      life: 40,
-      turn: 1,
-      selectedCardId: null,
-      currentDeckName: deck.name,
-    ));
+    emit(
+      CardSimulatorState(
+        battlefield: const [],
+        hand: const [],
+        library: library,
+        graveyard: const [],
+        exile: const [],
+        command: const [],
+        life: 40,
+        turn: 1,
+        selectedCardId: null,
+        currentDeckName: deck.name,
+      ),
+    );
   }
 
   String _fileName(String path) {
-    final parts = path.split(Platform.pathSeparator);
+    final parts = path.split(
+      Platform.pathSeparator,
+    );
     return parts.isNotEmpty ? parts.last : 'Card';
   }
 
-  void moveCard(String id, Zone target, {Offset? position}) {
+  void moveCard(
+    String id,
+    Zone target, {
+    Offset? position,
+  }) {
     // Create copies to avoid mutating lists that the UI may be iterating over
-    final battlefield = List<PlayingCardModel>.from(state.battlefield);
-    final hand = List<PlayingCardModel>.from(state.hand);
-    final library = List<PlayingCardModel>.from(state.library);
-    final graveyard = List<PlayingCardModel>.from(state.graveyard);
-    final exile = List<PlayingCardModel>.from(state.exile);
-    final command = List<PlayingCardModel>.from(state.command);
+    final battlefield =
+        List<PlayingCardModel>.from(
+          state.battlefield,
+        );
+    final hand = List<PlayingCardModel>.from(
+      state.hand,
+    );
+    final library = List<PlayingCardModel>.from(
+      state.library,
+    );
+    final graveyard = List<PlayingCardModel>.from(
+      state.graveyard,
+    );
+    final exile = List<PlayingCardModel>.from(
+      state.exile,
+    );
+    final command = List<PlayingCardModel>.from(
+      state.command,
+    );
 
     PlayingCardModel? card;
     Zone? fromZone;
     for (final c in battlefield) {
-      if (c.id == id) { card = c; fromZone = Zone.battlefield; break; }
+      if (c.id == id) {
+        card = c;
+        fromZone = Zone.battlefield;
+        break;
+      }
     }
-    if (card == null && hand.any((c) => c.id == id)) {
-      card = hand.firstWhere((c) => c.id == id); fromZone = Zone.hand;
+    if (card == null &&
+        hand.any((c) => c.id == id)) {
+      card = hand.firstWhere((c) => c.id == id);
+      fromZone = Zone.hand;
     }
-    if (card == null && library.any((c) => c.id == id)) {
-      card = library.firstWhere((c) => c.id == id); fromZone = Zone.library;
+    if (card == null &&
+        library.any((c) => c.id == id)) {
+      card = library.firstWhere(
+        (c) => c.id == id,
+      );
+      fromZone = Zone.library;
     }
-    if (card == null && graveyard.any((c) => c.id == id)) {
-      card = graveyard.firstWhere((c) => c.id == id); fromZone = Zone.graveyard;
+    if (card == null &&
+        graveyard.any((c) => c.id == id)) {
+      card = graveyard.firstWhere(
+        (c) => c.id == id,
+      );
+      fromZone = Zone.graveyard;
     }
-    if (card == null && exile.any((c) => c.id == id)) {
-      card = exile.firstWhere((c) => c.id == id); fromZone = Zone.exile;
+    if (card == null &&
+        exile.any((c) => c.id == id)) {
+      card = exile.firstWhere((c) => c.id == id);
+      fromZone = Zone.exile;
     }
-    if (card == null && command.any((c) => c.id == id)) {
-      card = command.firstWhere((c) => c.id == id); fromZone = Zone.command;
+    if (card == null &&
+        command.any((c) => c.id == id)) {
+      card = command.firstWhere(
+        (c) => c.id == id,
+      );
+      fromZone = Zone.command;
     }
     // Remove from the source zone
     switch (fromZone) {
       case Zone.battlefield:
-        battlefield.removeWhere((c) => c.id == id);
+        battlefield.removeWhere(
+          (c) => c.id == id,
+        );
         break;
       case Zone.hand:
         hand.removeWhere((c) => c.id == id);
@@ -231,8 +341,16 @@ class CardSimulatorCubit extends Cubit<CardSimulatorState> {
     if (card == null) return;
     final source = card;
     final moved = target == Zone.library
-        ? source.copyWith(zone: target, position: null, isFaceDown: true)
-        : source.copyWith(zone: target, position: position, isFaceDown: false);
+        ? source.copyWith(
+            zone: target,
+            position: null,
+            isFaceDown: true,
+          )
+        : source.copyWith(
+            zone: target,
+            position: position,
+            isFaceDown: false,
+          );
 
     switch (target) {
       case Zone.battlefield:
@@ -255,19 +373,28 @@ class CardSimulatorCubit extends Cubit<CardSimulatorState> {
         break;
     }
 
-    emit(state.copyWith(
-      battlefield: battlefield,
-      hand: hand,
-      library: library,
-      graveyard: graveyard,
-      exile: exile,
-      command: command,
-    ));
+    emit(
+      state.copyWith(
+        battlefield: battlefield,
+        hand: hand,
+        library: library,
+        graveyard: graveyard,
+        exile: exile,
+        command: command,
+      ),
+    );
   }
 
-  void updateBattlefieldPosition(String id, Offset position) {
+  void updateBattlefieldPosition(
+    String id,
+    Offset position,
+  ) {
     final updated = state.battlefield
-        .map((c) => c.id == id ? c.copyWith(position: position) : c)
+        .map(
+          (c) => c.id == id
+              ? c.copyWith(position: position)
+              : c,
+        )
         .toList();
     emit(state.copyWith(battlefield: updated));
   }
@@ -281,45 +408,134 @@ class CardSimulatorCubit extends Cubit<CardSimulatorState> {
       Zone.exile: state.exile,
       Zone.command: state.command,
     };
-    final zone = allZones.entries.firstWhere((e) => e.value.any((c) => c.id == id)).key;
+    final zone = allZones.entries
+        .firstWhere(
+          (e) => e.value.any((c) => c.id == id),
+        )
+        .key;
     final updated = allZones[zone]!
-        .map((c) => c.id == id ? c.copyWith(isTapped: !c.isTapped) : c)
+        .map(
+          (c) => c.id == id
+              ? c.copyWith(isTapped: !c.isTapped)
+              : c,
+        )
         .toList();
     emit(_replaceZone(zone, updated));
   }
 
   void deleteCard(String id) {
     final allZones = {
-      Zone.battlefield: state.battlefield.where((c) => c.id != id).toList(),
-      Zone.hand: state.hand.where((c) => c.id != id).toList(),
-      Zone.library: state.library.where((c) => c.id != id).toList(),
-      Zone.graveyard: state.graveyard.where((c) => c.id != id).toList(),
-      Zone.exile: state.exile.where((c) => c.id != id).toList(),
-      Zone.command: state.command.where((c) => c.id != id).toList(),
+      Zone.battlefield: state.battlefield
+          .where((c) => c.id != id)
+          .toList(),
+      Zone.hand: state.hand
+          .where((c) => c.id != id)
+          .toList(),
+      Zone.library: state.library
+          .where((c) => c.id != id)
+          .toList(),
+      Zone.graveyard: state.graveyard
+          .where((c) => c.id != id)
+          .toList(),
+      Zone.exile: state.exile
+          .where((c) => c.id != id)
+          .toList(),
+      Zone.command: state.command
+          .where((c) => c.id != id)
+          .toList(),
     };
-    emit(state.copyWith(
-      battlefield: allZones[Zone.battlefield]!,
-      hand: allZones[Zone.hand]!,
-      library: allZones[Zone.library]!,
-      graveyard: allZones[Zone.graveyard]!,
-      exile: allZones[Zone.exile]!,
-      command: allZones[Zone.command]!,
-    ));
+    emit(
+      state.copyWith(
+        battlefield: allZones[Zone.battlefield]!,
+        hand: allZones[Zone.hand]!,
+        library: allZones[Zone.library]!,
+        graveyard: allZones[Zone.graveyard]!,
+        exile: allZones[Zone.exile]!,
+        command: allZones[Zone.command]!,
+      ),
+    );
   }
 
-  void selectCard(String? id) => emit(state.copyWith(selectedCardId: id));
+  void selectCard(String? id) =>
+      emit(state.copyWith(selectedCardId: id));
+
+  // Insert or reorder in hand with placeholder behavior
+  void insertIntoHand(String id, int index) {
+    final all = _allCards();
+    final card = all.firstWhere(
+      (c) => c.id == id,
+    );
+    // Remove from whichever zone it is currently in and rebuild lists immutably
+    final battlefield =
+        List<PlayingCardModel>.from(
+          state.battlefield,
+        )..removeWhere((c) => c.id == id);
+    final hand = List<PlayingCardModel>.from(
+      state.hand,
+    )..removeWhere((c) => c.id == id);
+    final library = List<PlayingCardModel>.from(
+      state.library,
+    )..removeWhere((c) => c.id == id);
+    final graveyard = List<PlayingCardModel>.from(
+      state.graveyard,
+    )..removeWhere((c) => c.id == id);
+    final exile = List<PlayingCardModel>.from(
+      state.exile,
+    )..removeWhere((c) => c.id == id);
+    final command = List<PlayingCardModel>.from(
+      state.command,
+    )..removeWhere((c) => c.id == id);
+
+    final moved = card.copyWith(
+      zone: Zone.hand,
+      isFaceDown: false,
+      position: null,
+    );
+    final safeIndex = index.clamp(0, hand.length);
+    hand.insert(safeIndex, moved);
+    emit(
+      state.copyWith(
+        battlefield: battlefield,
+        hand: hand,
+        library: library,
+        graveyard: graveyard,
+        exile: exile,
+        command: command,
+      ),
+    );
+  }
+
+  void reorderHand(String id, int newIndex) {
+    final hand = List<PlayingCardModel>.of(
+      state.hand,
+    );
+    final currentIndex = hand.indexWhere(
+      (c) => c.id == id,
+    );
+    if (currentIndex == -1) return;
+    final card = hand.removeAt(currentIndex);
+    final safeIndex = newIndex.clamp(
+      0,
+      hand.length,
+    );
+    hand.insert(safeIndex, card);
+    emit(state.copyWith(hand: hand));
+  }
 
   // Helpers
   List<PlayingCardModel> _allCards() => [
-        ...state.battlefield,
-        ...state.hand,
-        ...state.library,
-        ...state.graveyard,
-        ...state.exile,
-        ...state.command,
-      ];
+    ...state.battlefield,
+    ...state.hand,
+    ...state.library,
+    ...state.graveyard,
+    ...state.exile,
+    ...state.command,
+  ];
 
-  CardSimulatorState _replaceZone(Zone zone, List<PlayingCardModel> cards) {
+  CardSimulatorState _replaceZone(
+    Zone zone,
+    List<PlayingCardModel> cards,
+  ) {
     switch (zone) {
       case Zone.battlefield:
         return state.copyWith(battlefield: cards);
@@ -338,5 +554,3 @@ class CardSimulatorCubit extends Cubit<CardSimulatorState> {
 
   // _rebuild removed; state is rebuilt directly in emit calls
 }
-
-

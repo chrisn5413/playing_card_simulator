@@ -73,20 +73,30 @@ class _ZoneList extends StatelessWidget {
           borderType: BorderType.RRect,
           radius: const Radius.circular(10),
           child: SizedBox(
-            height: 110,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemBuilder: (context, index) {
-                final c = cards[index];
-              return Draggable<PlayingCardModel>(
-                  data: c,
-                feedback: Material(color: Colors.transparent, child: CardWidget(card: c, width: 72, height: 100, interactive: false)),
-                  childWhenDragging: const SizedBox(width: 72, height: 100),
-                  child: CardWidget(card: c, width: 72, height: 100),
-                );
-              },
-              separatorBuilder: (_, __) => const SizedBox(width: 8),
-              itemCount: cards.length,
+            height: 130,
+            child: Row(
+              children: [
+                const SizedBox(width: 12),
+                if (cards.isNotEmpty)
+                  CardWidget(card: cards.first.copyWith(isFaceDown: false), width: 72, height: 100, interactive: false),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    itemBuilder: (context, index) {
+                      final c = cards[index];
+                      return Draggable<PlayingCardModel>(
+                        data: c,
+                        feedback: Material(color: Colors.transparent, child: CardWidget(card: c, width: 72, height: 100, interactive: false)),
+                        childWhenDragging: const SizedBox(width: 72, height: 100),
+                        child: CardWidget(card: c, width: 72, height: 100),
+                      );
+                    },
+                    separatorBuilder: (_, __) => const SizedBox(width: 8),
+                    itemCount: cards.length,
+                  ),
+                ),
+              ],
             ),
           ),
         ),

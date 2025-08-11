@@ -108,3 +108,37 @@ to make it look better/more even. Additionally the app freezes up still when I a
 to drag the card from my hand to the battlefield
 
 28% of 272K gpt5 tokens
+
+When the hand is under 8 cards, or potentially when it is not fanned (it fans after 
+7 cards), I get an error when trying to drag cards out from the hand zone. I included 
+a screenshot of the error. Make the all the zones in the "Show Other Zones" button 
+similar to library zone, except have the top most card facing up in the zone. I still 
+cannot close the preview card by tapping anywhere.
+
+33% of 272K gpt5 tokens
+
+I drew 3 cards, then attempted to drag one from the hand zone. The error in the
+included image appeared
+
+34% of 272K gpt5 tokens
+
+Dragging out from the hand zone works now, but I am not able to drag back into the 
+hand zone, or even the library zone. Make it so that cards can be dragged back into 
+the hand zone and allow the user to organize their hand (have the silhouette of the 
+card show up where the card will be positioned when the user stops dragging). Also 
+make it so that the top card of the library zone can be dragged out from there, 
+instead of only allowing drawing from the library. When the user drags from the 
+library, the dragged card should appear face up. When I attempt to tap to close 
+the preview card I can see the tap feedback from where I click but the preview 
+still does not close. Is it possible to instead create a preview when a card is 
+clicked and then delete the preview when clicked elsewhere, instead of trying to 
+close it? The included image shows a light grey circle expanding from the point I 
+tapped (which is not on the preview card) so it does detect I am tapping elsewhere, 
+but nothing else happens.
+
+40% of 272K gpt5 tokens
+
+Cards can move between the hand and library, but once on the battlefield they can't move back to other zones.
+The preview still stays and cannot close. Revert everything related closing the preview by tapping elsewhere, instead close it when tapping the preview.
+When the user does any action outside of tapping a card to select it, it should unselect the card (remove the outline).
+When the user attempts to order their hand, the ghost placeholder does not appear properly. I included two screenshots, one with 3 cards and one when trying to move the right most card. Upon dragging the card, the card directly to the left becomes invisible and it looks like the card is automatically moved to the far left.
