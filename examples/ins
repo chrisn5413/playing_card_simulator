@@ -337,3 +337,13 @@ I can still tap and drag from below the card at around half way to the scroll ba
 
 61% of 200K claude 4 tokens
 
+model change: auto
+
+Include the ability to select cards. Selecting cards is available in all zones except the library. 
+Tap a card (not in the library zone) to select that card. Then unselect the previous selection if 
+here was one (if it was the same card this still works). Tapping anywhere that is not a card (also, 
+not in the library zone) unselects everything. Selected cards are highlighted.
+
+selecting cards works but they don not unselect
+
+It still does not seem to unselect. do we check if the card is already selected?

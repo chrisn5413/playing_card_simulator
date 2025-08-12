@@ -686,39 +686,52 @@ class _HandDropAreaState
                   child: SizedBox(
                     width: cardW,
                     height: cardH,
-                    child:
-                        Draggable<
-                          PlayingCardModel
-                        >(
-                          data: c,
-                          dragAnchorStrategy:
-                              childDragAnchorStrategy,
-                          feedback: SizedBox(
-                            width: cardW,
-                            height: cardH,
-                            child: Material(
-                              color: Colors
-                                  .transparent,
-                              child: CardWidget(
-                                card: c,
-                                width: cardW,
-                                height: cardH,
-                                interactive:
-                                    false,
-                              ),
-                            ),
-                          ),
-                          childWhenDragging:
-                              const SizedBox(
-                                width: cardW,
-                                height: cardH,
-                              ),
+                    child: Draggable<PlayingCardModel>(
+                      data: c,
+                      dragAnchorStrategy:
+                          childDragAnchorStrategy,
+                      feedback: SizedBox(
+                        width: cardW,
+                        height: cardH,
+                        child: Material(
+                          color:
+                              Colors.transparent,
                           child: CardWidget(
                             card: c,
                             width: cardW,
                             height: cardH,
+                            interactive: false,
                           ),
                         ),
+                      ),
+                      childWhenDragging:
+                          const SizedBox(
+                            width: cardW,
+                            height: cardH,
+                          ),
+                      child:
+                          BlocBuilder<
+                            CardSimulatorCubit,
+                            CardSimulatorState
+                          >(
+                            builder: (context, state) {
+                              final isSelected =
+                                  state
+                                      .selectedCardId ==
+                                  c.id;
+                              print(
+                                'HandDropArea BlocBuilder: card.id=${c.id}, isSelected=$isSelected, selectedCardId=${state.selectedCardId}',
+                              );
+                              return CardWidget(
+                                card: c,
+                                width: cardW,
+                                height: cardH,
+                                isSelected:
+                                    isSelected,
+                              );
+                            },
+                          ),
+                    ),
                   ),
                 ),
               ),

@@ -10,6 +10,7 @@ class CardWidget extends StatelessWidget {
   final double height;
   final VoidCallback? onDelete;
   final bool interactive;
+  final bool isSelected;
   const CardWidget({
     super.key,
     required this.card,
@@ -17,6 +18,7 @@ class CardWidget extends StatelessWidget {
     required this.height,
     this.onDelete,
     this.interactive = true,
+    this.isSelected = false,
   });
 
   @override
@@ -64,15 +66,35 @@ class CardWidget extends StatelessWidget {
       ),
     );
 
-
-
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () {
         if (!interactive) return;
-        if (card.zone == Zone.library && showBack) {
-          context.read<CardSimulatorCubit>().draw(1);
+        if (card.zone == Zone.library &&
+            showBack) {
+          context.read<CardSimulatorCubit>().draw(
+            1,
+          );
           return;
+        }
+        // Handle card selection (except for library zone)
+        if (card.zone != Zone.library) {
+          final cubit = context
+              .read<CardSimulatorCubit>();
+          print(
+            'CardWidget.onTap: card.id=${card.id}, isSelected=$isSelected',
+          );
+          if (isSelected) {
+            print(
+              'CardWidget.onTap: clearing selection',
+            );
+            cubit.clearSelection();
+          } else {
+            print(
+              'CardWidget.onTap: selecting card ${card.id}',
+            );
+            cubit.selectCard(card.id);
+          }
         }
       },
       onLongPress: () async {
@@ -86,19 +108,32 @@ class CardWidget extends StatelessWidget {
             child: Material(
               color: Colors.transparent,
               child: Container(
-                constraints: const BoxConstraints(maxWidth: 320, maxHeight: 460),
+                constraints: const BoxConstraints(
+                  maxWidth: 320,
+                  maxHeight: 460,
+                ),
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [BoxShadow(color: Colors.black.withAlpha(153), blurRadius: 16)],
+                  borderRadius:
+                      BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black
+                          .withAlpha(153),
+                      blurRadius: 16,
+                    ),
+                  ],
                 ),
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius:
+                      BorderRadius.circular(12),
                   child: InteractiveViewer(
                     minScale: 1,
                     maxScale: 2.5,
                     clipBehavior: Clip.hardEdge,
                     child: CardWidget(
-                      card: card.copyWith(isTapped: false),
+                      card: card.copyWith(
+                        isTapped: false,
+                      ),
                       width: 288,
                       height: 400,
                       interactive: false,
@@ -109,10 +144,10 @@ class CardWidget extends StatelessWidget {
             ),
           ),
         );
-
       },
       onDoubleTap: () {
-        if (interactive && card.zone != Zone.hand) {
+        if (interactive &&
+            card.zone != Zone.hand) {
           context
               .read<CardSimulatorCubit>()
               .toggleTapped(card.id);
@@ -125,7 +160,16 @@ class CardWidget extends StatelessWidget {
                 ? 1.5708
                 : 0, // ~90 degrees
             child: Container(
-                             decoration: null,
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: isSelected
+                      ? Colors.blue
+                      : Colors.transparent,
+                  width: 3,
+                ),
+                borderRadius:
+                    BorderRadius.circular(6),
+              ),
               child: SizedBox(
                 width: width,
                 height: height,

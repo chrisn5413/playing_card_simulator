@@ -153,7 +153,8 @@ class CardSimulatorCubit
         (c) => c.copyWith(
           zone: Zone.hand,
           isFaceDown: false,
-          isTapped: false, // Reset orientation when leaving library
+          isTapped:
+              false, // Reset orientation when leaving library
         ),
       ),
     ];
@@ -346,13 +347,15 @@ class CardSimulatorCubit
             zone: target,
             position: null,
             isFaceDown: true,
-            isTapped: false, // Force portrait orientation
+            isTapped:
+                false, // Force portrait orientation
           )
         : source.copyWith(
             zone: target,
             position: position,
             isFaceDown: false,
-            isTapped: false, // Force portrait orientation
+            isTapped:
+                false, // Force portrait orientation
           );
 
     switch (target) {
@@ -459,8 +462,6 @@ class CardSimulatorCubit
     );
   }
 
-
-
   // Insert or reorder in hand with placeholder behavior
   void insertIntoHand(String id, int index) {
     final all = _allCards();
@@ -492,7 +493,8 @@ class CardSimulatorCubit
       zone: Zone.hand,
       isFaceDown: false,
       position: null,
-      isTapped: false, // Force portrait orientation
+      isTapped:
+          false, // Force portrait orientation
     );
     final safeIndex = index.clamp(0, hand.length);
     hand.insert(safeIndex, moved);
@@ -556,4 +558,47 @@ class CardSimulatorCubit
   }
 
   // _rebuild removed; state is rebuilt directly in emit calls
+
+  // Card selection methods
+  void selectCard(String? cardId) {
+    print(
+      'CardSimulatorCubit.selectCard: cardId=$cardId, current selectedCardId=${state.selectedCardId}',
+    );
+    final newState = state.copyWith(
+      selectedCardId: cardId,
+    );
+    emit(newState);
+    print(
+      'CardSimulatorCubit.selectCard: emitted new state with selectedCardId=${newState.selectedCardId}',
+    );
+  }
+
+  void clearSelection() {
+    print(
+      'CardSimulatorCubit.clearSelection: current selectedCardId=${state.selectedCardId}',
+    );
+
+    // Create new state directly instead of using copyWith
+    final newState = CardSimulatorState(
+      battlefield: state.battlefield,
+      hand: state.hand,
+      library: state.library,
+      graveyard: state.graveyard,
+      exile: state.exile,
+      command: state.command,
+      life: state.life,
+      turn: state.turn,
+      currentDeckName: state.currentDeckName,
+      selectedCardId:
+          null, // Explicitly set to null
+    );
+
+    print(
+      'CardSimulatorCubit.clearSelection: newState.selectedCardId=${newState.selectedCardId}',
+    );
+    emit(newState);
+    print(
+      'CardSimulatorCubit.clearSelection: emitted new state with selectedCardId=${newState.selectedCardId}',
+    );
+  }
 }

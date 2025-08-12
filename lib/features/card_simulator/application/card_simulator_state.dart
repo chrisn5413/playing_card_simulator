@@ -11,6 +11,7 @@ class CardSimulatorState extends Equatable {
   final int life;
   final int turn;
   final String? currentDeckName;
+  final String? selectedCardId;
 
   const CardSimulatorState({
     required this.battlefield,
@@ -22,6 +23,7 @@ class CardSimulatorState extends Equatable {
     required this.life,
     required this.turn,
     this.currentDeckName,
+    this.selectedCardId,
   });
 
   factory CardSimulatorState.initial() => const CardSimulatorState(
@@ -34,6 +36,7 @@ class CardSimulatorState extends Equatable {
         life: 40,
         turn: 1,
         currentDeckName: null,
+        selectedCardId: null,
       );
 
   CardSimulatorState copyWith({
@@ -46,6 +49,7 @@ class CardSimulatorState extends Equatable {
     int? life,
     int? turn,
     String? currentDeckName,
+    String? selectedCardId,
   }) {
     return CardSimulatorState(
       battlefield: battlefield ?? this.battlefield,
@@ -57,10 +61,11 @@ class CardSimulatorState extends Equatable {
       life: life ?? this.life,
       turn: turn ?? this.turn,
       currentDeckName: currentDeckName ?? this.currentDeckName,
+      selectedCardId: selectedCardId ?? this.selectedCardId,
     );
   }
 
   @override
-  List<Object?> get props => [battlefield, hand, library, graveyard, exile, command, life, turn, currentDeckName];
+  List<Object?> get props => [battlefield, hand, library, graveyard, exile, command, life, turn, currentDeckName, selectedCardId];
 }
 

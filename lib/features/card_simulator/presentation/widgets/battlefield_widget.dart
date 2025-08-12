@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:dotted_border/dotted_border.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 // imports reduced after refactor
 import '../../domain/entities/playing_card_model.dart';
+import '../../application/card_simulator_cubit.dart';
+import '../../application/card_simulator_state.dart';
 import 'card_widget.dart';
 
 class BattlefieldWidget extends StatelessWidget {
@@ -85,11 +88,26 @@ class _BattlefieldDraggableCard
             height: height,
           ),
         ),
-        child: CardWidget(
-          card: card,
-          width: width,
-          height: height,
-        ),
+        child:
+            BlocBuilder<
+              CardSimulatorCubit,
+              CardSimulatorState
+            >(
+              builder: (context, state) {
+                final isSelected =
+                    state.selectedCardId ==
+                    card.id;
+                print(
+                  'Battlefield BlocBuilder: card.id=${card.id}, isSelected=$isSelected, selectedCardId=${state.selectedCardId}',
+                );
+                return CardWidget(
+                  card: card,
+                  width: width,
+                  height: height,
+                  isSelected: isSelected,
+                );
+              },
+            ),
       ),
     );
   }

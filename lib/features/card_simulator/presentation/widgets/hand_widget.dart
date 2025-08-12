@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:dotted_border/dotted_border.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../domain/entities/playing_card_model.dart';
+import '../../application/card_simulator_cubit.dart';
 import 'card_widget.dart';
 
 class HandWidget extends StatelessWidget {
@@ -93,6 +95,7 @@ class HandWidget extends StatelessWidget {
                                   height: cardH,
                                   interactive:
                                       false,
+                                  isSelected: false,
                                 ),
                               ),
                             ),
@@ -105,6 +108,7 @@ class HandWidget extends StatelessWidget {
                               card: c,
                               width: cardW,
                               height: cardH,
+                              isSelected: context.read<CardSimulatorCubit>().state.selectedCardId == c.id,
                             ),
                           );
                         },
@@ -185,6 +189,7 @@ class HandWidget extends StatelessWidget {
                                                   cardH,
                                               interactive:
                                                   false,
+                                              isSelected: false,
                                             ),
                                           ),
                                         ),
@@ -201,6 +206,7 @@ class HandWidget extends StatelessWidget {
                                               cardW,
                                           height:
                                               cardH,
+                                          isSelected: context.read<CardSimulatorCubit>().state.selectedCardId == cards[i].id,
                                         ),
                                       ),
                                 ),
