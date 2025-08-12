@@ -276,7 +276,64 @@ those cases anymore
 
 78% of 200K claude 4 tokens
 
+Can you make the hand and library zone slightly bigger, then in the hand zone add a 
+horizontal slider bar beneath the cards for faster scrolling. Also, currently dragging 
+a card snaps it to a specific spot under where the drag is currently at (finger spot). 
+Can we make it so the card doesn't snap weirdly like that when dragging? The best example 
+I can give is that the top left of the card always snaps to the spot I drag at, I don't 
+want any snapping, the card just moves when i drag it
+
+17% of 200K claude 4 tokens
+
+I don't see a scroll bar, the screenshot shows what it looks like currently. Overflowed 
+cards go past the hand zone but a scroll bar is not at the bottom for easy movement. 
+Also Can you make it so the card shown in the library zone lines up with the cards in 
+the hand zone (its slightly down shifted currently)
+
+seems there is a problem, check screenshot
+
+27% of 200K claude 4 tokens
+
+The scroll bar is still not there and now the alignment is slightly off. In the 
+screenshot I provided, when moving manually sorting cards in the hand zone the shadaow 
+card is much longer than the actual card (seems like it trys to use up all the remaining 
+space in the zone). Additionally, the library zone card image is offset now for some reason
 
 
+that fixed the vertical alignment, now we need to make it horizontally in the middle 
 
+36% of 200K claude 4 tokens
+
+Refer to screenshot, notice that the ghost card outline under the card I am moving is 
+larger than the card itself. Why is that? Does the ghost card not have a hard limit 
+and instead use the rest of the height in the zone?
+
+37% of 200K claude 4 tokens
+
+the height still goes all the way down (screenshot included)
+
+39% of 200K claude 4 tokens
+
+the scroll bar broke
+
+47% of 200K claude 4 tokens
+
+the light grey background that indicates where the scroll bar can go, can we round those 
+ends at all?
+
+48% of 200K claude 4 tokens
+
+The scroll bar appears to be broken again. Either the background or the slider is not appearing
+
+54% of 200K claude 4 tokens
+
+works great. dragging cards in the hand zone has a slightly large detection box vertically. 
+I can drag a card from slightly below it (not actually touching the card) and sometimes it 
+messes with being able to use the scroll bar. Can we get it to be exactly the card dimensions?
+
+59% of 200K claude 4 tokens
+
+I can still tap and drag from below the card at around half way to the scroll bar in the hand zone
+
+61% of 200K claude 4 tokens
 

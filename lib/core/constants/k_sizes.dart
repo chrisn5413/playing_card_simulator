@@ -15,5 +15,6 @@ class KSize {
   // Components
   static const double cardWidth = 72;
   static const double cardHeight = 100;
+  static const double handZoneHeight = 180;
+  static const double libraryZoneHeight = 180;
 }
-

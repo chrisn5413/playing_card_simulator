@@ -8,35 +8,54 @@ import '../../../card_simulator/domain/entities/playing_card_model.dart';
 import '../widgets/battlefield_widget.dart';
 import '../widgets/other_zones_sheet.dart';
 import '../widgets/counter_bar_widget.dart';
+import '../../../../core/constants/k_sizes.dart';
 
 class SimulatorPage extends StatefulWidget {
   const SimulatorPage({super.key});
 
   @override
-  State<SimulatorPage> createState() => _SimulatorPageState();
+  State<SimulatorPage> createState() =>
+      _SimulatorPageState();
 }
 
-class _SimulatorPageState extends State<SimulatorPage> {
+class _SimulatorPageState
+    extends State<SimulatorPage> {
   final GlobalKey _battlefieldKey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<CardSimulatorCubit, CardSimulatorState>(
+    return BlocBuilder<
+      CardSimulatorCubit,
+      CardSimulatorState
+    >(
       builder: (context, state) {
         return Scaffold(
           backgroundColor: Colors.grey.shade900,
           appBar: PreferredSize(
-            preferredSize: const Size.fromHeight(56),
+            preferredSize: const Size.fromHeight(
+              56,
+            ),
             child: SafeArea(
               child: CounterBarWidget(
                 life: state.life,
                 turn: state.turn,
-                onMinus: context.read<CardSimulatorCubit>().decrementLife,
-                onPlus: context.read<CardSimulatorCubit>().incrementLife,
-                onNextTurn: context.read<CardSimulatorCubit>().nextTurn,
-                onReset: context.read<CardSimulatorCubit>().reset,
-                onConfirmReset: () => context.read<CardSimulatorCubit>().confirmAndReset(context),
-                onLoadDeck: () => _showLoadDeckMenu(context),
+                onMinus: context
+                    .read<CardSimulatorCubit>()
+                    .decrementLife,
+                onPlus: context
+                    .read<CardSimulatorCubit>()
+                    .incrementLife,
+                onNextTurn: context
+                    .read<CardSimulatorCubit>()
+                    .nextTurn,
+                onReset: context
+                    .read<CardSimulatorCubit>()
+                    .reset,
+                onConfirmReset: () => context
+                    .read<CardSimulatorCubit>()
+                    .confirmAndReset(context),
+                onLoadDeck: () =>
+                    _showLoadDeckMenu(context),
               ),
             ),
           ),
@@ -46,35 +65,91 @@ class _SimulatorPageState extends State<SimulatorPage> {
                 children: [
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      padding:
+                          const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
                       child: DragTarget<PlayingCardModel>(
                         onAcceptWithDetails: (d) {
-                          final box = _battlefieldKey.currentContext?.findRenderObject() as RenderBox?;
-                          final local = box?.globalToLocal(d.offset) ?? const Offset(40, 40);
-                          context.read<CardSimulatorCubit>().moveCard(d.data.id, Zone.battlefield, position: local);
+                          final box =
+                              _battlefieldKey
+                                      .currentContext
+                                      ?.findRenderObject()
+                                  as RenderBox?;
+                          final local =
+                              box?.globalToLocal(
+                                d.offset,
+                              ) ??
+                              const Offset(
+                                40,
+                                40,
+                              );
+                          context
+                              .read<
+                                CardSimulatorCubit
+                              >()
+                              .moveCard(
+                                d.data.id,
+                                Zone.battlefield,
+                                position: local,
+                              );
                         },
-                        builder: (context, candidate, rejected) => Container(
-                          key: _battlefieldKey,
-                          child: BattlefieldWidget(cards: state.battlefield),
-                        ),
+                        builder:
+                            (
+                              context,
+                              candidate,
+                              rejected,
+                            ) => Container(
+                              key:
+                                  _battlefieldKey,
+                              child: BattlefieldWidget(
+                                cards: state
+                                    .battlefield,
+                              ),
+                            ),
                       ),
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(bottom: 12, left: 12, right: 12),
+                    padding:
+                        const EdgeInsets.only(
+                          bottom: 12,
+                          left: 12,
+                          right: 12,
+                        ),
                     child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment:
+                          CrossAxisAlignment
+                              .start,
                       children: [
-                        Expanded(flex: 3, child: _HandDropArea(cards: state.hand)),
+                        Expanded(
+                          flex: 3,
+                          child: _HandDropArea(
+                            cards: state.hand,
+                          ),
+                        ),
                         const SizedBox(width: 12),
-                        Expanded(flex: 1, child: _LibrarySection(count: state.library.length)),
+                        Expanded(
+                          flex: 1,
+                          child: _LibrarySection(
+                            count: state
+                                .library
+                                .length,
+                          ),
+                        ),
                       ],
                     ),
                   ),
                   const SizedBox(height: 4),
                   Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: _LibraryHeader(count: 0),
+                    padding:
+                        const EdgeInsets.only(
+                          bottom: 12,
+                        ),
+                    child: _LibraryHeader(
+                      count: 0,
+                    ),
                   ),
                 ],
               ),
@@ -85,8 +160,11 @@ class _SimulatorPageState extends State<SimulatorPage> {
     );
   }
 
-  Future<void> _showLoadDeckMenu(BuildContext context) async {
-    final cubit = context.read<CardSimulatorCubit>();
+  Future<void> _showLoadDeckMenu(
+    BuildContext context,
+  ) async {
+    final cubit = context
+        .read<CardSimulatorCubit>();
     final decks = await cubit.loadSavedDecks();
     // ignore: use_build_context_synchronously
     showModalBottomSheet(
@@ -98,7 +176,8 @@ class _SimulatorPageState extends State<SimulatorPage> {
             padding: const EdgeInsets.all(16),
             child: Column(
               mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
               children: [
                 const Text(
                   'Load Deck',
@@ -123,13 +202,17 @@ class _SimulatorPageState extends State<SimulatorPage> {
                       ),
                       onTap: () {
                         Navigator.pop(context);
-                        cubit.loadDeckByName(d.name);
+                        cubit.loadDeckByName(
+                          d.name,
+                        );
                       },
                     ),
                   ),
                 if (decks.isEmpty)
                   const Padding(
-                    padding: EdgeInsets.only(bottom: 8),
+                    padding: EdgeInsets.only(
+                      bottom: 8,
+                    ),
                     child: Text(
                       'No saved decks yet',
                       style: TextStyle(
@@ -139,14 +222,22 @@ class _SimulatorPageState extends State<SimulatorPage> {
                   ),
                 const SizedBox(height: 8),
                 Align(
-                  alignment: Alignment.centerRight,
+                  alignment:
+                      Alignment.centerRight,
                   child: FilledButton.icon(
                     onPressed: () async {
                       Navigator.pop(context);
-                      await cubit.importDeckFromFolder(context);
+                      await cubit
+                          .importDeckFromFolder(
+                            context,
+                          );
                     },
-                    icon: const Icon(Icons.folder_open),
-                    label: const Text('Import from folder'),
+                    icon: const Icon(
+                      Icons.folder_open,
+                    ),
+                    label: const Text(
+                      'Import from folder',
+                    ),
                   ),
                 ),
               ],
@@ -165,7 +256,8 @@ class _LibraryHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      mainAxisAlignment:
+          MainAxisAlignment.spaceBetween,
       children: [
         InkWell(
           onTap: () => showModalBottomSheet(
@@ -173,12 +265,16 @@ class _LibraryHeader extends StatelessWidget {
             backgroundColor: Colors.grey.shade900,
             isScrollControlled: true,
             builder: (_) => BlocProvider.value(
-              value: context.read<CardSimulatorCubit>(),
+              value: context
+                  .read<CardSimulatorCubit>(),
               child: const OtherZonesSheet(),
             ),
           ),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 8,
+            ),
             child: Row(
               children: [
                 Text(
@@ -198,9 +294,12 @@ class _LibraryHeader extends StatelessWidget {
         ),
         if (count > 0)
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16,
+            ),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
@@ -214,16 +313,26 @@ class _LibraryHeader extends StatelessWidget {
                     PopupMenuButton<String>(
                       iconColor: Colors.white70,
                       onSelected: (v) async {
-                        final cubit = context.read<CardSimulatorCubit>();
-                        if (v == 'draw') cubit.draw(1);
-                        if (v == 'draw7') cubit.draw(7);
+                        final cubit = context
+                            .read<
+                              CardSimulatorCubit
+                            >();
+                        if (v == 'draw')
+                          cubit.draw(1);
+                        if (v == 'draw7')
+                          cubit.draw(7);
                         if (v == 'add') {
-                          final res = await _showAddDialog(context);
+                          final res =
+                              await _showAddDialog(
+                                context,
+                              );
                           if (res != null) {
-                            cubit.addCardToLibrary(
-                              name: res.$1,
-                              imageUrl: res.$2,
-                            );
+                            cubit
+                                .addCardToLibrary(
+                                  name: res.$1,
+                                  imageUrl:
+                                      res.$2,
+                                );
                           }
                         }
                       },
@@ -238,7 +347,9 @@ class _LibraryHeader extends StatelessWidget {
                         ),
                         PopupMenuItem(
                           value: 'add',
-                          child: Text('Add card (URL)'),
+                          child: Text(
+                            'Add card (URL)',
+                          ),
                         ),
                       ],
                     ),
@@ -246,7 +357,9 @@ class _LibraryHeader extends StatelessWidget {
                 ),
                 const SizedBox(height: 6),
                 GestureDetector(
-                  onTap: () => context.read<CardSimulatorCubit>().draw(1),
+                  onTap: () => context
+                      .read<CardSimulatorCubit>()
+                      .draw(1),
                   child: Container(
                     width: 60,
                     height: 84,
@@ -256,14 +369,20 @@ class _LibraryHeader extends StatelessWidget {
                         color: Colors.black,
                         width: 4,
                       ),
-                      borderRadius: BorderRadius.circular(6),
+                      borderRadius:
+                          BorderRadius.circular(
+                            6,
+                          ),
                     ),
                     alignment: Alignment.center,
                     child: const Padding(
-                      padding: EdgeInsets.all(4.0),
+                      padding: EdgeInsets.all(
+                        4.0,
+                      ),
                       child: Text(
                         'CARD BACK\nNO IMAGE',
-                        textAlign: TextAlign.center,
+                        textAlign:
+                            TextAlign.center,
                         style: TextStyle(
                           color: Colors.black,
                         ),
@@ -278,9 +397,13 @@ class _LibraryHeader extends StatelessWidget {
     );
   }
 
-  Future<(String, String)?> _showAddDialog(BuildContext context) async {
+  Future<(String, String)?> _showAddDialog(
+    BuildContext context,
+  ) async {
     final nameCtrl = TextEditingController();
-    final urlCtrl = TextEditingController(text: 'https://picsum.photos/300/420');
+    final urlCtrl = TextEditingController(
+      text: 'https://picsum.photos/300/420',
+    );
     return showDialog<(String, String)>(
       context: context,
       builder: (_) => AlertDialog(
@@ -309,14 +432,18 @@ class _LibraryHeader extends StatelessWidget {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () =>
+                Navigator.pop(context),
             child: const Text('Cancel'),
           ),
           FilledButton(
-            onPressed: () => Navigator.pop(context, (
-              nameCtrl.text.isEmpty ? 'Card' : nameCtrl.text,
-              urlCtrl.text,
-            )),
+            onPressed: () =>
+                Navigator.pop(context, (
+                  nameCtrl.text.isEmpty
+                      ? 'Card'
+                      : nameCtrl.text,
+                  urlCtrl.text,
+                )),
             child: const Text('Add'),
           ),
         ],
@@ -333,12 +460,16 @@ class _LibrarySection extends StatelessWidget {
   Widget build(BuildContext context) {
     final borderColor = Colors.white24;
     return DragTarget<PlayingCardModel>(
-      onAcceptWithDetails: (d) => context.read<CardSimulatorCubit>().moveCard(d.data.id, Zone.library),
+      onAcceptWithDetails: (d) => context
+          .read<CardSimulatorCubit>()
+          .moveCard(d.data.id, Zone.library),
       builder: (context, candidate, rejected) {
         return Container(
-          height: 140,
+          height: KSize.libraryZoneHeight,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(
+              10,
+            ),
             border: Border.all(
               color: borderColor,
               style: BorderStyle.solid,
@@ -346,10 +477,15 @@ class _LibrarySection extends StatelessWidget {
             ),
           ),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment:
+                CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: const EdgeInsets.only(left: 16, top: 8, bottom: 4),
+                padding: const EdgeInsets.only(
+                  left: 16,
+                  top: 8,
+                  bottom: 4,
+                ),
                 child: Text(
                   'Library ($count)',
                   style: const TextStyle(
@@ -360,49 +496,96 @@ class _LibrarySection extends StatelessWidget {
               ),
               Expanded(
                 child: count > 0
-                    ? Center(
-                        child: Draggable<PlayingCardModel>(
-                          data: context.read<CardSimulatorCubit>().state.library.first,
-                          dragAnchorStrategy: pointerDragAnchorStrategy,
-                          feedback: SizedBox(
-                            width: 72,
-                            height: 100,
-                            child: Material(
-                              color: Colors.transparent,
-                              child: CardWidget(
-                                card: context.read<CardSimulatorCubit>().state.library.first.copyWith(isFaceDown: false),
-                                width: 72,
-                                height: 100,
-                                interactive: false,
-                              ),
+                    ? Padding(
+                        padding:
+                            const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
                             ),
-                          ),
-                          childWhenDragging: const SizedBox(
-                            width: 72,
-                            height: 100,
-                          ),
-                          child: GestureDetector(
-                            onTap: () => context.read<CardSimulatorCubit>().draw(1),
-                            child: Container(
+                        child: Align(
+                          alignment:
+                              Alignment.topCenter,
+                          child: Draggable<PlayingCardModel>(
+                            data: context
+                                .read<
+                                  CardSimulatorCubit
+                                >()
+                                .state
+                                .library
+                                .first,
+                            dragAnchorStrategy:
+                                childDragAnchorStrategy,
+                            feedback: SizedBox(
                               width: 72,
                               height: 100,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                border: Border.all(
-                                  color: Colors.black,
-                                  width: 4,
+                              child: Material(
+                                color: Colors
+                                    .transparent,
+                                child: CardWidget(
+                                  card: context
+                                      .read<
+                                        CardSimulatorCubit
+                                      >()
+                                      .state
+                                      .library
+                                      .first
+                                      .copyWith(
+                                        isFaceDown:
+                                            false,
+                                      ),
+                                  width: 72,
+                                  height: 100,
+                                  interactive:
+                                      false,
                                 ),
-                                borderRadius: BorderRadius.circular(6),
                               ),
-                              alignment: Alignment.center,
-                              child: const Padding(
-                                padding: EdgeInsets.all(4.0),
-                                child: Text(
-                                  'CARD BACK\nNO IMAGE',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 12,
+                            ),
+                            childWhenDragging:
+                                const SizedBox(
+                                  width: 72,
+                                  height: 100,
+                                ),
+                            child: GestureDetector(
+                              onTap: () => context
+                                  .read<
+                                    CardSimulatorCubit
+                                  >()
+                                  .draw(1),
+                              child: Container(
+                                width: 72,
+                                height: 100,
+                                decoration: BoxDecoration(
+                                  color: Colors
+                                      .white,
+                                  border: Border.all(
+                                    color: Colors
+                                        .black,
+                                    width: 4,
+                                  ),
+                                  borderRadius:
+                                      BorderRadius.circular(
+                                        6,
+                                      ),
+                                ),
+                                alignment:
+                                    Alignment
+                                        .center,
+                                child: const Padding(
+                                  padding:
+                                      EdgeInsets.all(
+                                        4.0,
+                                      ),
+                                  child: Text(
+                                    'CARD BACK\nNO IMAGE',
+                                    textAlign:
+                                        TextAlign
+                                            .center,
+                                    style: TextStyle(
+                                      color: Colors
+                                          .black,
+                                      fontSize:
+                                          12,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -425,24 +608,59 @@ class _HandDropArea extends StatefulWidget {
   const _HandDropArea({required this.cards});
 
   @override
-  State<_HandDropArea> createState() => _HandDropAreaState();
+  State<_HandDropArea> createState() =>
+      _HandDropAreaState();
 }
 
-class _HandDropAreaState extends State<_HandDropArea> {
+class _HandDropAreaState
+    extends State<_HandDropArea> {
   int? placeholderIndex;
+  late ScrollController _scrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return DragTarget<PlayingCardModel>(
       onWillAcceptWithDetails: (d) {
-        setState(() => placeholderIndex = _computeIndexFromPosition(context, d.offset));
+        setState(
+          () => placeholderIndex =
+              _computeIndexFromPosition(
+                context,
+                d.offset,
+              ),
+        );
         return true;
       },
-      onMove: (details) => setState(() => placeholderIndex = _computeIndexFromPosition(context, details.offset)),
-      onLeave: (_) => setState(() => placeholderIndex = null),
+      onMove: (details) => setState(
+        () => placeholderIndex =
+            _computeIndexFromPosition(
+              context,
+              details.offset,
+            ),
+      ),
+      onLeave: (_) =>
+          setState(() => placeholderIndex = null),
       onAcceptWithDetails: (d) {
-        final index = _computeIndexFromPosition(context, d.offset) ?? widget.cards.length;
-        context.read<CardSimulatorCubit>().insertIntoHand(d.data.id, index);
+        final index =
+            _computeIndexFromPosition(
+              context,
+              d.offset,
+            ) ??
+            widget.cards.length;
+        context
+            .read<CardSimulatorCubit>()
+            .insertIntoHand(d.data.id, index);
         setState(() => placeholderIndex = null);
       },
       builder: (context, candidate, rejected) {
@@ -458,32 +676,49 @@ class _HandDropAreaState extends State<_HandDropArea> {
           if (i < cards.length) {
             final c = cards[i];
             children.add(
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4),
-                child: Draggable<PlayingCardModel>(
-                  data: c,
-                  dragAnchorStrategy: pointerDragAnchorStrategy,
-                  feedback: SizedBox(
-                    width: cardW,
-                    height: cardH,
-                    child: Material(
-                      color: Colors.transparent,
-                      child: CardWidget(
-                        card: c,
-                        width: cardW,
-                        height: cardH,
-                        interactive: false,
+              Align(
+                alignment: Alignment.topCenter,
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(
+                        horizontal: 4,
                       ),
-                    ),
-                  ),
-                  childWhenDragging: const SizedBox(
+                  child: SizedBox(
                     width: cardW,
                     height: cardH,
-                  ),
-                  child: CardWidget(
-                    card: c,
-                    width: cardW,
-                    height: cardH,
+                    child:
+                        Draggable<
+                          PlayingCardModel
+                        >(
+                          data: c,
+                          dragAnchorStrategy:
+                              childDragAnchorStrategy,
+                          feedback: SizedBox(
+                            width: cardW,
+                            height: cardH,
+                            child: Material(
+                              color: Colors
+                                  .transparent,
+                              child: CardWidget(
+                                card: c,
+                                width: cardW,
+                                height: cardH,
+                                interactive:
+                                    false,
+                              ),
+                            ),
+                          ),
+                          childWhenDragging:
+                              const SizedBox(
+                                width: cardW,
+                                height: cardH,
+                              ),
+                          child: CardWidget(
+                            card: c,
+                            width: cardW,
+                            height: cardH,
+                          ),
+                        ),
                   ),
                 ),
               ),
@@ -492,19 +727,26 @@ class _HandDropAreaState extends State<_HandDropArea> {
         }
 
         return Container(
-          height: 140,
+          height: KSize.handZoneHeight,
           decoration: BoxDecoration(
-            borderRadius: const BorderRadius.all(Radius.circular(10)),
+            borderRadius: const BorderRadius.all(
+              Radius.circular(10),
+            ),
             border: Border.all(
               color: Colors.white24,
               width: 1,
             ),
           ),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment:
+                CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: const EdgeInsets.only(left: 16, top: 8, bottom: 4),
+                padding: const EdgeInsets.only(
+                  left: 16,
+                  top: 8,
+                  bottom: 4,
+                ),
                 child: Text(
                   'Hand (${widget.cards.length})',
                   style: const TextStyle(
@@ -514,10 +756,86 @@ class _HandDropAreaState extends State<_HandDropArea> {
                 ),
               ),
               Expanded(
-                child: ListView(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  scrollDirection: Axis.horizontal,
-                  children: children,
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        margin:
+                            const EdgeInsets.symmetric(
+                              horizontal: 8,
+                            ),
+                        decoration: BoxDecoration(
+                          borderRadius:
+                              BorderRadius.circular(
+                                6,
+                              ),
+                        ),
+                        child: ClipRRect(
+                          borderRadius:
+                              BorderRadius.circular(
+                                6,
+                              ),
+                          child: Theme(
+                            data: Theme.of(context).copyWith(
+                              scrollbarTheme: ScrollbarThemeData(
+                                thumbColor:
+                                    WidgetStateProperty.all(
+                                      Colors
+                                          .grey
+                                          .shade300,
+                                    ),
+                                trackColor:
+                                    WidgetStateProperty.all(
+                                      Colors
+                                          .grey
+                                          .shade600,
+                                    ),
+                                trackBorderColor:
+                                    WidgetStateProperty.all(
+                                      Colors
+                                          .transparent,
+                                    ),
+                              ),
+                            ),
+                            child: Scrollbar(
+                              controller:
+                                  _scrollController,
+                              thumbVisibility:
+                                  true,
+                              trackVisibility:
+                                  true,
+                              thickness: 6,
+                              radius:
+                                  const Radius.circular(
+                                    3,
+                                  ),
+                              child: SizedBox(
+                                height:
+                                    112, // cardH (100) + vertical padding (6*2)
+                                child: ListView(
+                                  controller:
+                                      _scrollController,
+                                  padding:
+                                      const EdgeInsets.symmetric(
+                                        horizontal:
+                                            12,
+                                        vertical:
+                                            6,
+                                      ),
+                                  scrollDirection:
+                                      Axis.horizontal,
+                                  children:
+                                      children,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    // Small spacing at bottom
+                    const SizedBox(height: 8),
+                  ],
                 ),
               ),
             ],
@@ -527,28 +845,48 @@ class _HandDropAreaState extends State<_HandDropArea> {
     );
   }
 
-  int? _computeIndexFromPosition(BuildContext context, Offset globalPosition) {
-    final box = context.findRenderObject() as RenderBox?;
+  int? _computeIndexFromPosition(
+    BuildContext context,
+    Offset globalPosition,
+  ) {
+    final box =
+        context.findRenderObject() as RenderBox?;
     if (box == null) return null;
-    final local = box.globalToLocal(globalPosition);
+    final local = box.globalToLocal(
+      globalPosition,
+    );
     const cardW = 72.0;
     const spacing = 8.0;
-    final x = local.dx - 12; // account for horizontal padding
+    final x =
+        local.dx -
+        12; // account for horizontal padding
     if (x <= 0) return 0;
     final slot = (x / (cardW + spacing)).floor();
     return slot.clamp(0, widget.cards.length);
   }
 
-  Widget _ghost(double w, double h) => Container(
+  Widget _ghost(double w, double h) => Padding(
+    padding: const EdgeInsets.symmetric(
+      horizontal: 4,
+    ),
+    child: Align(
+      alignment: Alignment.topCenter,
+      child: SizedBox(
         width: w,
         height: h,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(6),
-          border: Border.all(
-            color: Colors.white38,
-            width: 2,
-            style: BorderStyle.solid,
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(
+              6,
+            ),
+            border: Border.all(
+              color: Colors.white38,
+              width: 2,
+              style: BorderStyle.solid,
+            ),
           ),
         ),
-      );
+      ),
+    ),
+  );
 }

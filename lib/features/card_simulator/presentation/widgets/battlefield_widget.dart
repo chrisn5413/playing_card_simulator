@@ -44,34 +44,52 @@ class BattlefieldWidget extends StatelessWidget {
   }
 }
 
-class _BattlefieldDraggableCard extends StatelessWidget {
+class _BattlefieldDraggableCard
+    extends StatelessWidget {
   final PlayingCardModel card;
-  const _BattlefieldDraggableCard({required this.card});
+  const _BattlefieldDraggableCard({
+    required this.card,
+  });
 
   @override
   Widget build(BuildContext context) {
     const width = 72.0;
     const height = 100.0;
-    final position = card.position ?? const Offset(20, 20);
+    final position =
+        card.position ?? const Offset(20, 20);
     return Positioned(
       left: position.dx,
       top: position.dy,
       child: Draggable<PlayingCardModel>(
         data: card,
-        dragAnchorStrategy: pointerDragAnchorStrategy,
+        dragAnchorStrategy:
+            childDragAnchorStrategy,
         feedback: SizedBox(
           width: width,
           height: height,
           child: Material(
             color: Colors.transparent,
-            child: CardWidget(card: card, width: width, height: height, interactive: false),
+            child: CardWidget(
+              card: card,
+              width: width,
+              height: height,
+              interactive: false,
+            ),
           ),
         ),
         childWhenDragging: Opacity(
           opacity: 0.6,
-          child: CardWidget(card: card, width: width, height: height),
+          child: CardWidget(
+            card: card,
+            width: width,
+            height: height,
+          ),
         ),
-        child: CardWidget(card: card, width: width, height: height),
+        child: CardWidget(
+          card: card,
+          width: width,
+          height: height,
+        ),
       ),
     );
   }
