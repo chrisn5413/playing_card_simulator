@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:dotted_border/dotted_border.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../application/card_simulator_cubit.dart';
+// imports reduced after refactor
 import '../../domain/entities/playing_card_model.dart';
 import 'card_widget.dart';
 
@@ -45,17 +44,37 @@ class BattlefieldWidget extends StatelessWidget {
   }
 }
 
-class _BattlefieldDraggableCard
-    extends StatefulWidget {
+class _BattlefieldDraggableCard extends StatelessWidget {
   final PlayingCardModel card;
-  const _BattlefieldDraggableCard({
-    required this.card,
-  });
+  const _BattlefieldDraggableCard({required this.card});
 
   @override
-  State<_BattlefieldDraggableCard>
-  createState() =>
-      _BattlefieldDraggableCardState();
+  Widget build(BuildContext context) {
+    const width = 72.0;
+    const height = 100.0;
+    final position = card.position ?? const Offset(20, 20);
+    return Positioned(
+      left: position.dx,
+      top: position.dy,
+      child: Draggable<PlayingCardModel>(
+        data: card,
+        dragAnchorStrategy: pointerDragAnchorStrategy,
+        feedback: SizedBox(
+          width: width,
+          height: height,
+          child: Material(
+            color: Colors.transparent,
+            child: CardWidget(card: card, width: width, height: height, interactive: false),
+          ),
+        ),
+        childWhenDragging: Opacity(
+          opacity: 0.6,
+          child: CardWidget(card: card, width: width, height: height),
+        ),
+        child: CardWidget(card: card, width: width, height: height),
+      ),
+    );
+  }
 }
 
 class _GridPainter extends CustomPainter {
@@ -95,80 +114,4 @@ class _GridPainter extends CustomPainter {
   ) => false;
 }
 
-class _BattlefieldDraggableCardState
-    extends State<_BattlefieldDraggableCard> {
-  late Offset position;
-  bool dragging = false;
-
-  @override
-  void initState() {
-    super.initState();
-    position =
-        widget.card.position ??
-        const Offset(20, 20);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final width = 72.0;
-    final height = 100.0;
-    return Positioned(
-      left: position.dx,
-      top: position.dy,
-      child: LongPressDraggable<PlayingCardModel>(
-        data: widget.card,
-        dragAnchorStrategy:
-            pointerDragAnchorStrategy,
-        feedback: SizedBox(
-          width: width,
-          height: height,
-          child: Material(
-            color: Colors.transparent,
-            child: CardWidget(
-              card: widget.card,
-              width: width,
-              height: height,
-              interactive: false,
-            ),
-          ),
-        ),
-        childWhenDragging: Opacity(
-          opacity: 0.6,
-          child: CardWidget(
-            card: widget.card.copyWith(
-              position: position,
-            ),
-            width: width,
-            height: height,
-          ),
-        ),
-        child: GestureDetector(
-          onPanStart: (_) =>
-              setState(() => dragging = true),
-          onPanUpdate: (d) {
-            setState(() => position += d.delta);
-          },
-          onPanEnd: (_) {
-            context
-                .read<CardSimulatorCubit>()
-                .updateBattlefieldPosition(
-                  widget.card.id,
-                  position,
-                );
-            setState(() => dragging = false);
-          },
-          child: Opacity(
-            opacity: dragging ? 0.85 : 1,
-            child: CardWidget(
-              card: widget.card.copyWith(
-                position: position,
-              ),
-              width: width,
-              height: height,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
+// Removed stateful pan-based drag in favor of Draggable above.

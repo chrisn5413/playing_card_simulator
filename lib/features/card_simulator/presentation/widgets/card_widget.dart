@@ -64,40 +64,59 @@ class CardWidget extends StatelessWidget {
       ),
     );
 
-    final isSelected =
-        interactive &&
-        (() {
-          try {
-            final cubit = context
-                .read<CardSimulatorCubit>();
-            return cubit.state.selectedCardId ==
-                card.id;
-          } catch (_) {
-            return false;
-          }
-        }());
+
 
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: () {
         if (!interactive) return;
-        if (card.zone == Zone.library &&
-            showBack) {
-          context.read<CardSimulatorCubit>().draw(
-            1,
-          );
-        } else {
-          context
-              .read<CardSimulatorCubit>()
-              .selectCard(
-                isSelected ? null : card.id,
-              );
+        if (card.zone == Zone.library && showBack) {
+          context.read<CardSimulatorCubit>().draw(1);
+          return;
         }
       },
+      onLongPress: () async {
+        if (!interactive) return;
+        // Modal preview on long press
+        await showDialog<void>(
+          context: context,
+          barrierDismissible: true,
+          barrierColor: Colors.black54,
+          builder: (_) => Center(
+            child: Material(
+              color: Colors.transparent,
+              child: Container(
+                constraints: const BoxConstraints(maxWidth: 320, maxHeight: 460),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [BoxShadow(color: Colors.black.withAlpha(153), blurRadius: 16)],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: InteractiveViewer(
+                    minScale: 1,
+                    maxScale: 2.5,
+                    clipBehavior: Clip.hardEdge,
+                    child: CardWidget(
+                      card: card.copyWith(isTapped: false),
+                      width: 288,
+                      height: 400,
+                      interactive: false,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+
+      },
       onDoubleTap: () {
-        if (interactive)
+        if (interactive && card.zone != Zone.hand) {
           context
               .read<CardSimulatorCubit>()
               .toggleTapped(card.id);
+        }
       },
       child: Stack(
         children: [
@@ -106,18 +125,7 @@ class CardWidget extends StatelessWidget {
                 ? 1.5708
                 : 0, // ~90 degrees
             child: Container(
-              decoration: isSelected
-                  ? BoxDecoration(
-                      border: Border.all(
-                        color: Colors.amberAccent,
-                        width: 3,
-                      ),
-                      borderRadius:
-                          BorderRadius.circular(
-                            8,
-                          ),
-                    )
-                  : null,
+                             decoration: null,
               child: SizedBox(
                 width: width,
                 height: height,
@@ -125,183 +133,9 @@ class CardWidget extends StatelessWidget {
               ),
             ),
           ),
-          if (isSelected)
-            Positioned(
-              right: 2,
-              top: 2,
-              child: _ThreeDotsButton(
-                onPressed: (pos) async {
-                  final selected =
-                      await showMenu<String>(
-                        context: context,
-                        position:
-                            RelativeRect.fromLTRB(
-                              pos.dx,
-                              pos.dy,
-                              0,
-                              0,
-                            ),
-                        color:
-                            Colors.grey.shade800,
-                        items: _menuForZone(
-                          card.zone,
-                        ),
-                      );
-                  final cubit = context
-                      .read<CardSimulatorCubit>();
-                  switch (selected) {
-                    case 'to_battlefield':
-                      cubit.moveCard(
-                        card.id,
-                        Zone.battlefield,
-                        position: const Offset(
-                          40,
-                          40,
-                        ),
-                      );
-                      break;
-                    case 'to_hand':
-                      cubit.moveCard(
-                        card.id,
-                        Zone.hand,
-                      );
-                      break;
-                    case 'to_library':
-                      cubit.moveCard(
-                        card.id,
-                        Zone.library,
-                      );
-                      break;
-                    case 'to_grave':
-                      cubit.moveCard(
-                        card.id,
-                        Zone.graveyard,
-                      );
-                      break;
-                    case 'to_exile':
-                      cubit.moveCard(
-                        card.id,
-                        Zone.exile,
-                      );
-                      break;
-                    case 'to_command':
-                      cubit.moveCard(
-                        card.id,
-                        Zone.command,
-                      );
-                      break;
-                    case 'tap':
-                      cubit.toggleTapped(card.id);
-                      break;
-                    case 'delete':
-                      onDelete?.call();
-                      cubit.deleteCard(card.id);
-                      break;
-                  }
-                },
-              ),
-            ),
         ],
       ),
     );
-  }
-
-  List<PopupMenuEntry<String>> _menuForZone(
-    Zone zone,
-  ) {
-    // zone-specific menus constructed below
-    switch (zone) {
-      case Zone.battlefield:
-        return const [
-          PopupMenuItem(
-            value: 'to_hand',
-            child: Text('Move to Hand'),
-          ),
-          PopupMenuItem(
-            value: 'to_library',
-            child: Text('Move to Library (Top)'),
-          ),
-          PopupMenuItem(
-            value: 'to_grave',
-            child: Text('Move to Graveyard'),
-          ),
-          PopupMenuItem(
-            value: 'to_exile',
-            child: Text('Exile'),
-          ),
-          PopupMenuDivider(),
-          PopupMenuItem(
-            value: 'tap',
-            child: Text('Tap/Untap'),
-          ),
-          PopupMenuItem(
-            value: 'delete',
-            child: Text('Delete'),
-          ),
-        ];
-      case Zone.hand:
-        return const [
-          PopupMenuItem(
-            value: 'to_battlefield',
-            child: Text('Move to Battlefield'),
-          ),
-          PopupMenuItem(
-            value: 'to_library',
-            child: Text('Move to Library (Top)'),
-          ),
-          PopupMenuItem(
-            value: 'to_grave',
-            child: Text('Move to Graveyard'),
-          ),
-          PopupMenuItem(
-            value: 'to_exile',
-            child: Text('Exile'),
-          ),
-          PopupMenuDivider(),
-          PopupMenuItem(
-            value: 'delete',
-            child: Text('Delete'),
-          ),
-        ];
-      case Zone.library:
-        return const [
-          PopupMenuItem(
-            value: 'to_hand',
-            child: Text('Draw to Hand'),
-          ),
-          PopupMenuItem(
-            value: 'to_battlefield',
-            child: Text('Put onto Battlefield'),
-          ),
-          PopupMenuDivider(),
-          PopupMenuItem(
-            value: 'delete',
-            child: Text('Delete'),
-          ),
-        ];
-      case Zone.graveyard:
-      case Zone.exile:
-      case Zone.command:
-        return const [
-          PopupMenuItem(
-            value: 'to_hand',
-            child: Text('Move to Hand'),
-          ),
-          PopupMenuItem(
-            value: 'to_library',
-            child: Text('Move to Library (Top)'),
-          ),
-          PopupMenuItem(
-            value: 'to_battlefield',
-            child: Text('Move to Battlefield'),
-          ),
-          PopupMenuDivider(),
-          PopupMenuItem(
-            value: 'delete',
-            child: Text('Delete'),
-          ),
-        ];
-    }
   }
 
   Widget _backWidget() {
@@ -320,33 +154,6 @@ class CardWidget extends StatelessWidget {
             'CARD BACK, NO IMAGE',
             style: TextStyle(color: Colors.black),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ThreeDotsButton extends StatelessWidget {
-  final ValueChanged<Offset> onPressed;
-  const _ThreeDotsButton({
-    required this.onPressed,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: (d) =>
-          onPressed(d.globalPosition),
-      child: Container(
-        padding: const EdgeInsets.all(4),
-        decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.6),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: const Icon(
-          Icons.more_vert,
-          color: Colors.white,
-          size: 16,
         ),
       ),
     );

@@ -107,7 +107,7 @@ class CardSimulatorCubit
         command: command,
         life: 40,
         turn: 1,
-        selectedCardId: null,
+
         currentDeckName: state.currentDeckName,
       ),
     );
@@ -153,6 +153,7 @@ class CardSimulatorCubit
         (c) => c.copyWith(
           zone: Zone.hand,
           isFaceDown: false,
+          isTapped: false, // Reset orientation when leaving library
         ),
       ),
     ];
@@ -233,7 +234,7 @@ class CardSimulatorCubit
         command: const [],
         life: 40,
         turn: 1,
-        selectedCardId: null,
+
         currentDeckName: deck.name,
       ),
     );
@@ -345,11 +346,13 @@ class CardSimulatorCubit
             zone: target,
             position: null,
             isFaceDown: true,
+            isTapped: false, // Force portrait orientation
           )
         : source.copyWith(
             zone: target,
             position: position,
             isFaceDown: false,
+            isTapped: false, // Force portrait orientation
           );
 
     switch (target) {
@@ -456,8 +459,7 @@ class CardSimulatorCubit
     );
   }
 
-  void selectCard(String? id) =>
-      emit(state.copyWith(selectedCardId: id));
+
 
   // Insert or reorder in hand with placeholder behavior
   void insertIntoHand(String id, int index) {
@@ -490,6 +492,7 @@ class CardSimulatorCubit
       zone: Zone.hand,
       isFaceDown: false,
       position: null,
+      isTapped: false, // Force portrait orientation
     );
     final safeIndex = index.clamp(0, hand.length);
     hand.insert(safeIndex, moved);

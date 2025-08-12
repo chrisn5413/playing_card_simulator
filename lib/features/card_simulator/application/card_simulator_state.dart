@@ -10,7 +10,6 @@ class CardSimulatorState extends Equatable {
   final List<PlayingCardModel> command;
   final int life;
   final int turn;
-  final String? selectedCardId;
   final String? currentDeckName;
 
   const CardSimulatorState({
@@ -22,7 +21,6 @@ class CardSimulatorState extends Equatable {
     required this.command,
     required this.life,
     required this.turn,
-    this.selectedCardId,
     this.currentDeckName,
   });
 
@@ -47,7 +45,6 @@ class CardSimulatorState extends Equatable {
     List<PlayingCardModel>? command,
     int? life,
     int? turn,
-    String? selectedCardId,
     String? currentDeckName,
   }) {
     return CardSimulatorState(
@@ -59,12 +56,11 @@ class CardSimulatorState extends Equatable {
       command: command ?? this.command,
       life: life ?? this.life,
       turn: turn ?? this.turn,
-      selectedCardId: selectedCardId ?? this.selectedCardId,
       currentDeckName: currentDeckName ?? this.currentDeckName,
     );
   }
 
   @override
-  List<Object?> get props => [battlefield, hand, library, graveyard, exile, command, life, turn, selectedCardId, currentDeckName];
+  List<Object?> get props => [battlefield, hand, library, graveyard, exile, command, life, turn, currentDeckName];
 }
 
