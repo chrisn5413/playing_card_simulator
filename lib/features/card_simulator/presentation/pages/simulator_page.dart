@@ -500,11 +500,27 @@ class _LibrarySection extends StatelessWidget {
                   top: 8,
                   bottom: 4,
                 ),
-                child: Text(
-                  'Library ($count)',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
+                child: GestureDetector(
+                  onTap: () =>
+                      _showLibraryContextMenu(
+                        context,
+                      ),
+                  child: Row(
+                    children: [
+                      Text(
+                        'Library ($count)',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      const Icon(
+                        Icons.keyboard_arrow_up,
+                        color: Colors.white70,
+                        size: 16,
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -614,6 +630,78 @@ class _LibrarySection extends StatelessWidget {
         );
       },
     );
+  }
+
+  void _showLibraryContextMenu(
+    BuildContext context,
+  ) {
+    final RenderBox button =
+        context.findRenderObject() as RenderBox;
+    final RenderBox overlay =
+        Navigator.of(
+              context,
+            ).overlay!.context.findRenderObject()
+            as RenderBox;
+
+    // Position the menu above the library label
+    final buttonPosition = button.localToGlobal(
+      Offset.zero,
+      ancestor: overlay,
+    );
+
+    // Calculate position to center the menu above the button
+    final menuWidth =
+        150.0; // Approximate menu width
+    final menuHeight =
+        120.0; // Approximate menu height
+    final left =
+        buttonPosition.dx -
+        20; // Align more to the left, closer to library zone left edge
+    final top =
+        buttonPosition.dy -
+        menuHeight -
+        40; // Move higher to create a gap between menu and label
+
+    final RelativeRect position =
+        RelativeRect.fromLTRB(
+          left,
+          top,
+          overlay.size.width - left - menuWidth,
+          overlay.size.height - top - menuHeight,
+        );
+
+    showMenu<String>(
+      context: context,
+      position: position,
+      color: Colors.grey.shade800,
+      items: const [
+        PopupMenuItem<String>(
+          value: 'draw1',
+          child: Text(
+            'Draw 1 card',
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
+        PopupMenuItem<String>(
+          value: 'draw7',
+          child: Text(
+            'Draw 7 cards',
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
+        PopupMenuItem<String>(
+          value: 'shuffle',
+          child: Text(
+            'Shuffle Deck',
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
+      ],
+    ).then((value) {
+      if (value != null) {
+        // TODO: Implement the actions
+      }
+    });
   }
 }
 
@@ -733,9 +821,6 @@ class _HandDropAreaState
                                   state
                                       .selectedCardId ==
                                   c.id;
-                              print(
-                                'HandDropArea BlocBuilder: card.id=${c.id}, isSelected=$isSelected, selectedCardId=${state.selectedCardId}',
-                              );
                               return CardWidget(
                                 card: c,
                                 width: cardW,

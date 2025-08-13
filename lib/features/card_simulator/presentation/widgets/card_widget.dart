@@ -111,18 +111,9 @@ class CardWidget extends StatelessWidget {
         if (card.zone != Zone.library) {
           final cubit = context
               .read<CardSimulatorCubit>();
-          print(
-            'CardWidget.onTap: card.id=${card.id}, isSelected=$isSelected',
-          );
           if (isSelected) {
-            print(
-              'CardWidget.onTap: clearing selection',
-            );
             cubit.clearSelection();
           } else {
-            print(
-              'CardWidget.onTap: selecting card ${card.id}',
-            );
             cubit.selectCard(card.id);
           }
         }
@@ -296,9 +287,6 @@ class CardWidget extends StatelessWidget {
     ).then((value) {
       if (value != null) {
         // TODO: Implement the move actions
-        print(
-          'Selected option: $value for card ${card.id}',
-        );
       } else {
         // Menu was dismissed (tapped outside), clear the selection
         cubit.clearSelection();

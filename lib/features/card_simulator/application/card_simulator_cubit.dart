@@ -561,23 +561,13 @@ class CardSimulatorCubit
 
   // Card selection methods
   void selectCard(String? cardId) {
-    print(
-      'CardSimulatorCubit.selectCard: cardId=$cardId, current selectedCardId=${state.selectedCardId}',
-    );
     final newState = state.copyWith(
       selectedCardId: cardId,
     );
     emit(newState);
-    print(
-      'CardSimulatorCubit.selectCard: emitted new state with selectedCardId=${newState.selectedCardId}',
-    );
   }
 
   void clearSelection() {
-    print(
-      'CardSimulatorCubit.clearSelection: current selectedCardId=${state.selectedCardId}',
-    );
-
     // Create new state directly instead of using copyWith
     final newState = CardSimulatorState(
       battlefield: state.battlefield,
@@ -593,12 +583,6 @@ class CardSimulatorCubit
           null, // Explicitly set to null
     );
 
-    print(
-      'CardSimulatorCubit.clearSelection: newState.selectedCardId=${newState.selectedCardId}',
-    );
     emit(newState);
-    print(
-      'CardSimulatorCubit.clearSelection: emitted new state with selectedCardId=${newState.selectedCardId}',
-    );
   }
 }

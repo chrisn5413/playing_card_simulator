@@ -417,4 +417,50 @@ move to library. Do not implement the options yet, just have them appear in smal
 popup context menu whenever the 3-dots button is pressed
 
 shift the menu down and over slightly so the card selected is still partly visible 
-like the screenshot provided. 
+like the screenshot provided.
+
+The context menu looks good but I lost the ability to unselect cards by tapping 
+elsewhere (tapping the same card still works)
+
+that seems to work. Can you make it so that tapping elsewhere removes selection 
+AND the context menu? That way I don't need to tap twice (once to close the menu 
+and a second time to unselect)
+
+The context menu halts the app altogether when the dots are pressed. Error message 
+included
+
+the context menu doesn't close properly, but the card unselects
+
+i still need to tap twice to close the context menu and to unselect
+
+error when tapping to close context menu
+
+new error
+
+The menu works again. Can we try to get the menu and deselection to both happen 
+when clicking elsewhere
+
+take the debugging statements in the code out
+
+Add a context menu to the library. Put an arrow near the label to indicate that 
+it can be tapped, then have it open upwards like in the screenshot. Add the options 
+"Draw 1 card", "Draw 7 cards", and "Shuffle Deck". Do not implement the action of 
+the options for now.
+
+The context menu appears to open on the side, can we make it appear above the library zone?
+
+move it above the library label so the user can still see how many cards they have. 
+can it also be more to the left (have the left of the context menu aligns closer to 
+the left of the library zone)
+
+now move it up slightly so there is a gap between the bottom of the menu and the label
+
+Is there a way to limit the application size for windows device (what I am currently 
+using to debug) in order to simulate the size of a phone screen
+
+lets go with the first option
+
+are you able to do it for me
+
+I seem to get a failed to update package
+

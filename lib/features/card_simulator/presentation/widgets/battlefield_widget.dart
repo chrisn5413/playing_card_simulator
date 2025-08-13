@@ -97,9 +97,6 @@ class _BattlefieldDraggableCard
                 final isSelected =
                     state.selectedCardId ==
                     card.id;
-                print(
-                  'Battlefield BlocBuilder: card.id=${card.id}, isSelected=$isSelected, selectedCardId=${state.selectedCardId}',
-                );
                 return CardWidget(
                   card: card,
                   width: width,
