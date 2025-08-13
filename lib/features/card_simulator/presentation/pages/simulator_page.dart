@@ -70,44 +70,51 @@ class _SimulatorPageState
                             horizontal: 12,
                             vertical: 8,
                           ),
-                      child: DragTarget<PlayingCardModel>(
-                        onAcceptWithDetails: (d) {
-                          final box =
-                              _battlefieldKey
-                                      .currentContext
-                                      ?.findRenderObject()
-                                  as RenderBox?;
-                          final local =
-                              box?.globalToLocal(
-                                d.offset,
-                              ) ??
-                              const Offset(
-                                40,
-                                40,
-                              );
-                          context
-                              .read<
-                                CardSimulatorCubit
-                              >()
-                              .moveCard(
-                                d.data.id,
-                                Zone.battlefield,
-                                position: local,
-                              );
-                        },
-                        builder:
-                            (
-                              context,
-                              candidate,
-                              rejected,
-                            ) => Container(
-                              key:
-                                  _battlefieldKey,
-                              child: BattlefieldWidget(
-                                cards: state
-                                    .battlefield,
+                      child: GestureDetector(
+                        onTap: () => context
+                            .read<
+                              CardSimulatorCubit
+                            >()
+                            .clearSelection(),
+                        child: DragTarget<PlayingCardModel>(
+                          onAcceptWithDetails: (d) {
+                            final box =
+                                _battlefieldKey
+                                        .currentContext
+                                        ?.findRenderObject()
+                                    as RenderBox?;
+                            final local =
+                                box?.globalToLocal(
+                                  d.offset,
+                                ) ??
+                                const Offset(
+                                  40,
+                                  40,
+                                );
+                            context
+                                .read<
+                                  CardSimulatorCubit
+                                >()
+                                .moveCard(
+                                  d.data.id,
+                                  Zone.battlefield,
+                                  position: local,
+                                );
+                          },
+                          builder:
+                              (
+                                context,
+                                candidate,
+                                rejected,
+                              ) => Container(
+                                key:
+                                    _battlefieldKey,
+                                child: BattlefieldWidget(
+                                  cards: state
+                                      .battlefield,
+                                ),
                               ),
-                            ),
+                        ),
                       ),
                     ),
                   ),
@@ -125,8 +132,15 @@ class _SimulatorPageState
                       children: [
                         Expanded(
                           flex: 3,
-                          child: _HandDropArea(
-                            cards: state.hand,
+                          child: GestureDetector(
+                            onTap: () => context
+                                .read<
+                                  CardSimulatorCubit
+                                >()
+                                .clearSelection(),
+                            child: _HandDropArea(
+                              cards: state.hand,
+                            ),
                           ),
                         ),
                         const SizedBox(width: 12),

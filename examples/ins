@@ -347,3 +347,74 @@ not in the library zone) unselects everything. Selected cards are highlighted.
 selecting cards works but they don not unselect
 
 It still does not seem to unselect. do we check if the card is already selected?
+
+The problem seems to be that the highlight for selected cards is not linked to 
+isSelected. Even though we are unselecting the card, we do not remove the highlight 
+around the card
+
+even though we are clearing the selection, the blue highlight around the card 
+does not get removed
+
+it says clearing selection still in he console but the highlight around the 
+card remains
+
+selecting the same card still does not remove the highlight
+
+Seems like there are two prints for BlocBuilder when clicking a new unselected 
+card. Additionally, when selecting a previously selected card, there is no BlocBuilder output (I included a screenshot)
+
+Looks like the cubit and blocbuilder output print correctly when selecting 
+a card (though there are two outputs for blocbuilder still for some reason). 
+When deselecting a card, the BlocBuilder output is never printed
+
+still does not seem to remove the highlight
+
+it still does not work. can you add debug output to test this
+
+I only tested selecting a new card but I think I already see a problem. Battlefield 
+BlocBuilder prints twice, the first time with isSelected = true & state = numbers, 
+the second time isSelected = false & state = null.
+
+This is what came up after I clicked selected one card (I drew straight from the 
+library so it never went into the hand, i think thats why there was no Hand 
+buildWhen). What I noticed is for some reason there are two cards? I did drag 
+two cards from the library to the battlefield, but I only explicitly tapped one.
+
+The problem still persists, we only figured out that all blocbuilders rebuild. 
+It doesn't remove the highlight on the currently reselected card though
+
+it doesn't work as stated, selecting new cards gets rid of the old border but 
+selecting the same card does not get rid of the border
+
+Lets try to figure out why this is happening. When I click on a card on the 
+battlefield, what steps does the app need to through to eventually highlight 
+the card?
+
+When you say the card is rebuilt every time it is selected, do you mean the 
+outline is redone instead of being enabled? Would it be easier to instead have 
+the outline appear on the same layer as the card image and just enable or disable 
+it depending on the action? I don't really know flutter so I'm just throwing ideas 
+against the wall
+
+lets implement the suggested change and see if we can fix the rehighlighting 
+issue
+
+doesn't seem to be doing anything special. can we get some debug statements
+
+I can't really tell what's happening but I included the screenshot. The 
+bottom 4 lines are outputted when reselecting
+
+bottom four outputs are reselect again. seems the new state is still the 
+same one
+
+seems that they are all the same
+
+It is fixed. Now I want to add a button I can click which appears on the selected 
+card like shown in @card-select.png. I want a small context menu to pop up 
+whenever I click the button like shown in @card-context-1.png , but there should 
+only be 3 options for now. The options are move to battlefield, move to hand, and 
+move to library. Do not implement the options yet, just have them appear in small 
+popup context menu whenever the 3-dots button is pressed
+
+shift the menu down and over slightly so the card selected is still partly visible 
+like the screenshot provided. 

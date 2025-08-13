@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import '../../application/card_simulator_cubit.dart';
+import '../../application/card_simulator_state.dart';
 import '../../domain/entities/playing_card_model.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -59,6 +60,35 @@ class CardWidget extends StatelessWidget {
                   Icons.rotate_right,
                   color: Colors.white70,
                   size: 16,
+                ),
+              ),
+            // Three-dots button for selected cards
+            if (isSelected && interactive)
+              Positioned(
+                top: 4,
+                left: 4,
+                child: GestureDetector(
+                  behavior: HitTestBehavior
+                      .deferToChild,
+                  onTap: () =>
+                      _showContextMenu(context),
+                  child: Container(
+                    width: 20,
+                    height: 20,
+                    decoration: BoxDecoration(
+                      color: Colors.black
+                          .withOpacity(0.7),
+                      borderRadius:
+                          BorderRadius.circular(
+                            10,
+                          ),
+                    ),
+                    child: const Icon(
+                      Icons.more_vert,
+                      color: Colors.white,
+                      size: 16,
+                    ),
+                  ),
                 ),
               ),
           ],
@@ -201,5 +231,78 @@ class CardWidget extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _showContextMenu(BuildContext context) {
+    final RenderBox button =
+        context.findRenderObject() as RenderBox;
+    final RenderBox overlay =
+        Navigator.of(
+              context,
+            ).overlay!.context.findRenderObject()
+            as RenderBox;
+
+    // Get the cubit reference before creating the overlay
+    final cubit = context
+        .read<CardSimulatorCubit>();
+
+    // Offset the menu down and to the right so the card remains visible
+    final buttonPosition = button.localToGlobal(
+      Offset.zero,
+      ancestor: overlay,
+    );
+    final offsetPosition =
+        buttonPosition +
+        const Offset(
+          10,
+          10,
+        ); // Offset down and right
+
+    final RelativeRect position =
+        RelativeRect.fromLTRB(
+          offsetPosition.dx,
+          offsetPosition.dy,
+          overlay.size.width - offsetPosition.dx,
+          overlay.size.height - offsetPosition.dy,
+        );
+
+    showMenu<String>(
+      context: context,
+      position: position,
+      color: Colors.grey.shade800,
+      items: const [
+        PopupMenuItem<String>(
+          value: 'battlefield',
+          child: Text(
+            'Move to Battlefield',
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
+        PopupMenuItem<String>(
+          value: 'hand',
+          child: Text(
+            'Move to Hand',
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
+        PopupMenuItem<String>(
+          value: 'library',
+          child: Text(
+            'Move to Library',
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
+      ],
+    ).then((value) {
+      if (value != null) {
+        // TODO: Implement the move actions
+        print(
+          'Selected option: $value for card ${card.id}',
+        );
+      } else {
+        // Menu was dismissed (tapped outside), clear the selection
+        cubit.clearSelection();
+      }
+    });
   }
 }
