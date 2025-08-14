@@ -13,8 +13,8 @@ void main() {
     setWindowTitle(
       'Card Simulator',
     ); // iPhone X size
-    setWindowMinSize(const Size(400, 600));
-    setWindowMaxSize(const Size(400, 600));
+    setWindowMinSize(const Size(420, 600));
+    setWindowMaxSize(const Size(420, 600));
   }
 
   runApp(const MyApp());

@@ -26,56 +26,114 @@ class CounterBarWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: Colors.black,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 8,
+        vertical: 8,
+      ),
       child: Row(
         children: [
-          const Icon(Icons.casino, color: Colors.white70),
-          const SizedBox(width: 12),
+          const Icon(
+            Icons.casino,
+            color: Colors.white70,
+            size: 20,
+          ),
+          const SizedBox(width: 8),
           _roundButton('-', onMinus),
-          const SizedBox(width: 8),
-          Text('$life', style: const TextStyle(fontSize: 18, color: Colors.white)),
-          const SizedBox(width: 8),
+          const SizedBox(width: 6),
+          Text(
+            '$life',
+            style: const TextStyle(
+              fontSize: 16,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(width: 6),
           _roundButton('+', onPlus),
-          const SizedBox(width: 24),
-          Text('Turn $turn', style: const TextStyle(color: Colors.white70)),
-          const SizedBox(width: 8),
+          const SizedBox(width: 16),
+          Text(
+            'Turn $turn',
+            style: const TextStyle(
+              color: Colors.white70,
+              fontSize: 14,
+            ),
+          ),
+          const SizedBox(width: 6),
           OutlinedButton(
             onPressed: onNextTurn,
-            style: OutlinedButton.styleFrom(foregroundColor: Colors.white70),
-            child: const Text('Next'),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: Colors.white70,
+              padding: const EdgeInsets.symmetric(
+                horizontal: 8,
+                vertical: 4,
+              ),
+              minimumSize: const Size(0, 32),
+            ),
+            child: const Text(
+              'Next',
+              style: TextStyle(fontSize: 12),
+            ),
           ),
           const Spacer(),
           OutlinedButton(
             onPressed: onLoadDeck,
-            style: OutlinedButton.styleFrom(foregroundColor: Colors.white70),
-            child: const Text('Load deck'),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: Colors.white70,
+              padding: const EdgeInsets.symmetric(
+                horizontal: 8,
+                vertical: 4,
+              ),
+              minimumSize: const Size(0, 32),
+            ),
+            child: const Text(
+              'Load deck',
+              style: TextStyle(fontSize: 12),
+            ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 4),
           IconButton(
             tooltip: 'Reset',
-            icon: const Icon(Icons.autorenew, color: Colors.purpleAccent),
+            icon: const Icon(
+              Icons.autorenew,
+              color: Colors.purpleAccent,
+              size: 20,
+            ),
             onPressed: onConfirmReset,
-          )
+            padding: const EdgeInsets.all(4),
+            constraints: const BoxConstraints(
+              minWidth: 32,
+              minHeight: 32,
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _roundButton(String label, VoidCallback onTap) {
+  Widget _roundButton(
+    String label,
+    VoidCallback onTap,
+  ) {
     return InkResponse(
       onTap: onTap,
-      radius: 20,
+      radius: 16,
       child: Container(
-        width: 28,
-        height: 28,
+        width: 24,
+        height: 24,
         alignment: Alignment.center,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          border: Border.all(color: Colors.white24),
+          border: Border.all(
+            color: Colors.white24,
+          ),
         ),
-        child: Text(label, style: const TextStyle(color: Colors.white)),
+        child: Text(
+          label,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 12,
+          ),
+        ),
       ),
     );
   }
 }
-

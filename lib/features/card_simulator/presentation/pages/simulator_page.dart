@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import '../widgets/card_widget.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -67,7 +68,7 @@ class _SimulatorPageState
                     child: Padding(
                       padding:
                           const EdgeInsets.symmetric(
-                            horizontal: 12,
+                            horizontal: 8,
                             vertical: 8,
                           ),
                       child: GestureDetector(
@@ -121,9 +122,9 @@ class _SimulatorPageState
                   Padding(
                     padding:
                         const EdgeInsets.only(
-                          bottom: 12,
-                          left: 12,
-                          right: 12,
+                          bottom: 8,
+                          left: 8,
+                          right: 8,
                         ),
                     child: Row(
                       crossAxisAlignment:
@@ -143,7 +144,7 @@ class _SimulatorPageState
                             ),
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        const SizedBox(width: 8),
                         Expanded(
                           flex: 1,
                           child: _LibrarySection(
@@ -159,7 +160,7 @@ class _SimulatorPageState
                   Padding(
                     padding:
                         const EdgeInsets.only(
-                          bottom: 12,
+                          bottom: 8,
                         ),
                     child: _LibraryHeader(
                       count: 0,
@@ -210,9 +211,34 @@ class _SimulatorPageState
                           color: Colors.white,
                         ),
                       ),
-                      trailing: const Icon(
-                        Icons.chevron_right,
-                        color: Colors.white70,
+                      subtitle: Text(
+                        '${d.imagePaths.length} cards',
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 12,
+                        ),
+                      ),
+                      trailing: Row(
+                        mainAxisSize:
+                            MainAxisSize.min,
+                        children: [
+                          Text(
+                            '${d.imagePaths.length}',
+                            style:
+                                const TextStyle(
+                                  color: Colors
+                                      .white70,
+                                  fontSize: 12,
+                                ),
+                          ),
+                          const SizedBox(
+                            width: 8,
+                          ),
+                          const Icon(
+                            Icons.chevron_right,
+                            color: Colors.white70,
+                          ),
+                        ],
                       ),
                       onTap: () {
                         Navigator.pop(context);
@@ -235,24 +261,55 @@ class _SimulatorPageState
                     ),
                   ),
                 const SizedBox(height: 8),
-                Align(
-                  alignment:
-                      Alignment.centerRight,
-                  child: FilledButton.icon(
-                    onPressed: () async {
-                      Navigator.pop(context);
-                      await cubit
-                          .importDeckFromFolder(
-                            context,
-                          );
-                    },
-                    icon: const Icon(
-                      Icons.folder_open,
-                    ),
-                    label: const Text(
-                      'Import from folder',
+                if (decks.isNotEmpty)
+                  Padding(
+                    padding:
+                        const EdgeInsets.only(
+                          bottom: 8,
+                        ),
+                    child: Text(
+                      '${decks.length} deck${decks.length == 1 ? '' : 's'} available',
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 12,
+                      ),
                     ),
                   ),
+                Row(
+                  mainAxisAlignment:
+                      MainAxisAlignment
+                          .spaceBetween,
+                  children: [
+                    FilledButton.icon(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        cubit.reset();
+                      },
+                      icon: const Icon(
+                        Icons.refresh,
+                      ),
+                      label: const Text(
+                        'Reset to Default',
+                      ),
+                    ),
+                    FilledButton.icon(
+                      onPressed: () async {
+                        Navigator.pop(context);
+                        await cubit
+                            .importDeckFromFolder(
+                              context,
+                            );
+                      },
+                      icon: const Icon(
+                        Icons.folder_open,
+                      ),
+                      label: Text(
+                        Platform.isAndroid
+                            ? 'Select Folder'
+                            : 'Import from folder',
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -286,8 +343,8 @@ class _LibraryHeader extends StatelessWidget {
           ),
           child: Padding(
             padding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 8,
+              horizontal: 8,
+              vertical: 6,
             ),
             child: Row(
               children: [
@@ -309,7 +366,7 @@ class _LibraryHeader extends StatelessWidget {
         if (count > 0)
           Padding(
             padding: const EdgeInsets.symmetric(
-              horizontal: 16,
+              horizontal: 8,
             ),
             child: Column(
               crossAxisAlignment:
@@ -375,8 +432,8 @@ class _LibraryHeader extends StatelessWidget {
                       .read<CardSimulatorCubit>()
                       .draw(1),
                   child: Container(
-                    width: 60,
-                    height: 84,
+                    width: 50,
+                    height: 70,
                     decoration: BoxDecoration(
                       color: Colors.white,
                       border: Border.all(
@@ -399,6 +456,7 @@ class _LibraryHeader extends StatelessWidget {
                             TextAlign.center,
                         style: TextStyle(
                           color: Colors.black,
+                          fontSize: 10,
                         ),
                       ),
                     ),
@@ -496,7 +554,7 @@ class _LibrarySection extends StatelessWidget {
             children: [
               Padding(
                 padding: const EdgeInsets.only(
-                  left: 16,
+                  left: 12,
                   top: 8,
                   bottom: 4,
                 ),
@@ -506,19 +564,25 @@ class _LibrarySection extends StatelessWidget {
                         context,
                       ),
                   child: Row(
+                    mainAxisSize:
+                        MainAxisSize.min,
                     children: [
-                      Text(
-                        'Library ($count)',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
+                      Flexible(
+                        child: Text(
+                          'Library',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                          ),
+                          overflow: TextOverflow
+                              .ellipsis,
                         ),
                       ),
-                      const SizedBox(width: 4),
+                      const SizedBox(width: 2),
                       const Icon(
                         Icons.keyboard_arrow_up,
                         color: Colors.white70,
-                        size: 16,
+                        size: 14,
                       ),
                     ],
                   ),
@@ -529,13 +593,16 @@ class _LibrarySection extends StatelessWidget {
                     ? Padding(
                         padding:
                             const EdgeInsets.symmetric(
-                              horizontal: 12,
+                              horizontal: 8,
                               vertical: 6,
                             ),
-                        child: Align(
-                          alignment:
-                              Alignment.topCenter,
-                          child: Draggable<PlayingCardModel>(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Align(
+                              alignment:
+                                  Alignment.topCenter,
+                              child: Draggable<PlayingCardModel>(
                             data: context
                                 .read<
                                   CardSimulatorCubit
@@ -620,7 +687,15 @@ class _LibrarySection extends StatelessWidget {
                                 ),
                               ),
                             ),
-                          ),
+                            const SizedBox(height: 4),
+                            Text(
+                              '($count)',
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
                         ),
                       )
                     : const SizedBox.shrink(),
@@ -783,7 +858,7 @@ class _HandDropAreaState
                 child: Padding(
                   padding:
                       const EdgeInsets.symmetric(
-                        horizontal: 4,
+                        horizontal: 2,
                       ),
                   child: SizedBox(
                     width: cardW,
@@ -855,7 +930,7 @@ class _HandDropAreaState
             children: [
               Padding(
                 padding: const EdgeInsets.only(
-                  left: 16,
+                  left: 12,
                   top: 8,
                   bottom: 4,
                 ),
@@ -874,7 +949,7 @@ class _HandDropAreaState
                       child: Container(
                         margin:
                             const EdgeInsets.symmetric(
-                              horizontal: 8,
+                              horizontal: 4,
                             ),
                         decoration: BoxDecoration(
                           borderRadius:
@@ -930,7 +1005,7 @@ class _HandDropAreaState
                                   padding:
                                       const EdgeInsets.symmetric(
                                         horizontal:
-                                            12,
+                                            8,
                                         vertical:
                                             6,
                                       ),
@@ -968,10 +1043,10 @@ class _HandDropAreaState
       globalPosition,
     );
     const cardW = 72.0;
-    const spacing = 8.0;
+    const spacing = 4.0;
     final x =
         local.dx -
-        12; // account for horizontal padding
+        8; // account for horizontal padding
     if (x <= 0) return 0;
     final slot = (x / (cardW + spacing)).floor();
     return slot.clamp(0, widget.cards.length);
@@ -979,7 +1054,7 @@ class _HandDropAreaState
 
   Widget _ghost(double w, double h) => Padding(
     padding: const EdgeInsets.symmetric(
-      horizontal: 4,
+      horizontal: 2,
     ),
     child: Align(
       alignment: Alignment.topCenter,
