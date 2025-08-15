@@ -17,4 +17,5 @@ class KSize {
   static const double cardHeight = 100;
   static const double handZoneHeight = 180;
   static const double libraryZoneHeight = 180;
+  static const double otherZoneHeight = 180; // Consistent height for all zones
 }

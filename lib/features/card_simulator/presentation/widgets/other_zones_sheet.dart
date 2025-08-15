@@ -5,6 +5,7 @@ import '../../application/card_simulator_cubit.dart';
 import '../../application/card_simulator_state.dart';
 import '../../domain/entities/playing_card_model.dart';
 import 'card_widget.dart';
+import '../../../../core/constants/k_sizes.dart';
 
 class OtherZonesSheet extends StatelessWidget {
   const OtherZonesSheet({super.key});
@@ -50,7 +51,7 @@ class OtherZonesSheet extends StatelessWidget {
                                 Zone.graveyard,
                               ),
                       builder: (context, a, r) =>
-                          _ZoneList(
+                          ZoneList(
                             title:
                                 'Graveyard (${state.graveyard.length})',
                             cards:
@@ -71,7 +72,7 @@ class OtherZonesSheet extends StatelessWidget {
                                 Zone.exile,
                               ),
                       builder: (context, a, r) =>
-                          _ZoneList(
+                          ZoneList(
                             title:
                                 'Exile (${state.exile.length})',
                             cards: state.exile,
@@ -98,7 +99,7 @@ class OtherZonesSheet extends StatelessWidget {
                                 context,
                                 a,
                                 r,
-                              ) => _ZoneList(
+                              ) => ZoneList(
                                 title: 'Command',
                                 cards:
                                     state.command,
@@ -115,10 +116,86 @@ class OtherZonesSheet extends StatelessWidget {
   }
 }
 
-class _ZoneList extends StatelessWidget {
+// New widget for embedded other zones
+class OtherZonesWidget extends StatelessWidget {
+  const OtherZonesWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<
+      CardSimulatorCubit,
+      CardSimulatorState
+    >(
+      builder: (context, state) {
+        return Row(
+          children: [
+            Expanded(
+              child: DragTarget<PlayingCardModel>(
+                onAcceptWithDetails: (d) =>
+                    context
+                        .read<
+                          CardSimulatorCubit
+                        >()
+                        .moveCard(
+                          d.data.id,
+                          Zone.graveyard,
+                        ),
+                builder: (context, a, r) => ZoneList(
+                  title:
+                      'Graveyard (${state.graveyard.length})',
+                  cards: state.graveyard,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: DragTarget<PlayingCardModel>(
+                onAcceptWithDetails: (d) =>
+                    context
+                        .read<
+                          CardSimulatorCubit
+                        >()
+                        .moveCard(
+                          d.data.id,
+                          Zone.exile,
+                        ),
+                builder: (context, a, r) => ZoneList(
+                  title:
+                      'Exile (${state.exile.length})',
+                  cards: state.exile,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: DragTarget<PlayingCardModel>(
+                onAcceptWithDetails: (d) =>
+                    context
+                        .read<
+                          CardSimulatorCubit
+                        >()
+                        .moveCard(
+                          d.data.id,
+                          Zone.command,
+                        ),
+                builder: (context, a, r) =>
+                    ZoneList(
+                      title: 'Command',
+                      cards: state.command,
+                    ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class ZoneList extends StatelessWidget {
   final String title;
   final List<PlayingCardModel> cards;
-  const _ZoneList({
+  const ZoneList({
     required this.title,
     required this.cards,
   });
@@ -129,14 +206,14 @@ class _ZoneList extends StatelessWidget {
       crossAxisAlignment:
           CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 8),
+        const SizedBox(height: 4), // Reduced from 8
         Text(
           title,
           style: const TextStyle(
             color: Colors.white,
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 4), // Reduced from 8
         DottedBorder(
           color: Colors.white24,
           strokeWidth: 1.2,
@@ -144,7 +221,7 @@ class _ZoneList extends StatelessWidget {
           borderType: BorderType.RRect,
           radius: const Radius.circular(10),
           child: SizedBox(
-            height: 130,
+            height: KSize.otherZoneHeight, // Use consistent height
             child: Padding(
               padding: const EdgeInsets.all(8),
               child: cards.isNotEmpty

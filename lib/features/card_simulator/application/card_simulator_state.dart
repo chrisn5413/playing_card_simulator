@@ -12,6 +12,7 @@ class CardSimulatorState extends Equatable {
   final int turn;
   final String? currentDeckName;
   final String? selectedCardId;
+  final bool showOtherZones;
 
   const CardSimulatorState({
     required this.battlefield,
@@ -24,9 +25,11 @@ class CardSimulatorState extends Equatable {
     required this.turn,
     this.currentDeckName,
     this.selectedCardId,
+    this.showOtherZones = false,
   });
 
-  factory CardSimulatorState.initial() => const CardSimulatorState(
+  factory CardSimulatorState.initial() =>
+      const CardSimulatorState(
         battlefield: [],
         hand: [],
         library: [],
@@ -50,9 +53,11 @@ class CardSimulatorState extends Equatable {
     int? turn,
     String? currentDeckName,
     String? selectedCardId,
+    bool? showOtherZones,
   }) {
     return CardSimulatorState(
-      battlefield: battlefield ?? this.battlefield,
+      battlefield:
+          battlefield ?? this.battlefield,
       hand: hand ?? this.hand,
       library: library ?? this.library,
       graveyard: graveyard ?? this.graveyard,
@@ -60,12 +65,27 @@ class CardSimulatorState extends Equatable {
       command: command ?? this.command,
       life: life ?? this.life,
       turn: turn ?? this.turn,
-      currentDeckName: currentDeckName ?? this.currentDeckName,
-      selectedCardId: selectedCardId ?? this.selectedCardId,
+      currentDeckName:
+          currentDeckName ?? this.currentDeckName,
+      selectedCardId:
+          selectedCardId ?? this.selectedCardId,
+      showOtherZones:
+          showOtherZones ?? this.showOtherZones,
     );
   }
 
   @override
-  List<Object?> get props => [battlefield, hand, library, graveyard, exile, command, life, turn, currentDeckName, selectedCardId];
+  List<Object?> get props => [
+    battlefield,
+    hand,
+    library,
+    graveyard,
+    exile,
+    command,
+    life,
+    turn,
+    currentDeckName,
+    selectedCardId,
+    showOtherZones,
+  ];
 }
-

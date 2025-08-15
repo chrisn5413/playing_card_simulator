@@ -1456,4 +1456,12 @@ class CardSimulatorCubit
 
     emit(newState);
   }
+
+  void toggleOtherZones() {
+    emit(
+      state.copyWith(
+        showOtherZones: !state.showOtherZones,
+      ),
+    );
+  }
 }
