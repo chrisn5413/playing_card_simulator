@@ -107,9 +107,6 @@ class CardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print(
-      'CardWidget building for card: ${card.id}, isSelected: $isSelected',
-    );
 
     final showBack =
         card.zone == Zone.library &&
@@ -186,25 +183,12 @@ class CardWidget extends StatelessWidget {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () {
-        print(
-          'CardWidget onTap called for card: ${card.id} in zone: ${card.zone}',
-        );
-        print(
-          'Interactive: $interactive, isSelected: $isSelected',
-        );
-
         if (!interactive) {
-          print(
-            'Card is not interactive, returning',
-          );
           return;
         }
 
         if (card.zone == Zone.library &&
             showBack) {
-          print(
-            'Library card tapped, drawing card',
-          );
           context.read<CardSimulatorCubit>().draw(
             1,
           );
@@ -215,58 +199,87 @@ class CardWidget extends StatelessWidget {
         final cubit = context
             .read<CardSimulatorCubit>();
         if (isSelected) {
-          print(
-            'Clearing selection for card: ${card.id}',
-          );
           cubit.clearSelection();
         } else {
-          print('Selecting card: ${card.id}');
           cubit.selectCard(card.id);
         }
       },
       onLongPress: () async {
-        if (!interactive) return;
+        if (!interactive) {
+          return;
+        }
         // Modal preview on long press
-        await showDialog<void>(
+                await showDialog<void>(
           context: context,
           barrierDismissible: true,
           barrierColor: Colors.black54,
           builder: (_) => Center(
             child: Material(
               color: Colors.transparent,
-              child: Container(
-                constraints: const BoxConstraints(
-                  maxWidth: 320,
-                  maxHeight: 460,
-                ),
-                decoration: BoxDecoration(
-                  borderRadius:
-                      BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black
-                          .withAlpha(153),
-                      blurRadius: 16,
+              child: Stack(
+                children: [
+                  Container(
+                    constraints: const BoxConstraints(
+                      maxWidth: 320,
+                      maxHeight: 460,
                     ),
-                  ],
-                ),
-                child: ClipRRect(
-                  borderRadius:
-                      BorderRadius.circular(12),
-                  child: InteractiveViewer(
-                    minScale: 1,
-                    maxScale: 2.5,
-                    clipBehavior: Clip.hardEdge,
-                    child: CardWidget(
-                      card: card.copyWith(
-                        isTapped: false,
+                    decoration: BoxDecoration(
+                      borderRadius:
+                          BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black
+                              .withAlpha(153),
+                          blurRadius: 16,
+                        ),
+                      ],
+                    ),
+                    child: ClipRRect(
+                      borderRadius:
+                          BorderRadius.circular(12),
+                      child: InteractiveViewer(
+                        minScale: 1,
+                        maxScale: 2.5,
+                        clipBehavior: Clip.hardEdge,
+                        child: CardWidget(
+                          card: card.copyWith(
+                            isTapped: false,
+                          ),
+                          width: 288,
+                          height: 400,
+                          interactive: false,
+                        ),
                       ),
-                      width: 288,
-                      height: 400,
-                      interactive: false,
                     ),
                   ),
-                ),
+                                                        // Close button positioned near the card corner
+                    Positioned(
+                      top: -8,
+                      right: -8,
+                     child: GestureDetector(
+                       onTap: () {
+                         Navigator.of(context).pop();
+                       },
+                       child: Container(
+                         width: 32,
+                         height: 32,
+                         decoration: BoxDecoration(
+                           color: Colors.grey.shade300,
+                           borderRadius: BorderRadius.circular(16),
+                           border: Border.all(
+                             color: Colors.white,
+                             width: 2,
+                           ),
+                         ),
+                         child: const Icon(
+                           Icons.close,
+                           color: Colors.black,
+                           size: 20,
+                         ),
+                       ),
+                     ),
+                   ),
+                ],
               ),
             ),
           ),

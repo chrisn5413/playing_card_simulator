@@ -56,8 +56,8 @@ class _BattlefieldDraggableCard
 
   @override
   Widget build(BuildContext context) {
-    const width = 72.0;
-    const height = 100.0;
+    const width = 50.0; // Match hand card size
+    const height = 69.0; // Match hand card size
     final position =
         card.position ?? const Offset(20, 20);
     return Positioned(
@@ -80,15 +80,8 @@ class _BattlefieldDraggableCard
             ),
           ),
         ),
-        childWhenDragging: Opacity(
-          opacity: 0.6,
-          child: CardWidget(
-            card: card,
-            width: width,
-            height: height,
-          ),
-        ),
-        child:
+                 childWhenDragging: const SizedBox.shrink(),
+         child:
             BlocBuilder<
               CardSimulatorCubit,
               CardSimulatorState

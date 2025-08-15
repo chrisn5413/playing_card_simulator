@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../domain/entities/playing_card_model.dart';
 import '../../application/card_simulator_cubit.dart';
 import 'card_widget.dart';
+import '../../../../core/constants/k_sizes.dart';
 
 class HandWidget extends StatelessWidget {
   final List<PlayingCardModel> cards;
@@ -44,14 +45,18 @@ class HandWidget extends StatelessWidget {
             Expanded(
               child: LayoutBuilder(
                 builder: (context, constraints) {
-                  const cardW = 72.0;
-                  const cardH = 100.0;
-                  final available =
-                      constraints.maxWidth -
-                      24; // padding already applied above
-                  final maxFull =
-                      (available / (cardW + 8))
-                          .floor();
+                  // Calculate responsive card size
+                  final cardSize = KSize.calculateCardSize(
+                    availableWidth: constraints.maxWidth,
+                    availableHeight: constraints.maxHeight,
+                    maxCards: cards.isEmpty ? 1 : cards.length.clamp(1, 5),
+                    spacing: 8.0,
+                    padding: 24.0, // Account for existing padding
+                  );
+                  
+                  final cardW = cardSize.width;
+                  final cardH = cardSize.height;
+                  
                   if (cards.isEmpty) {
                     return Center(
                       child: Text(
@@ -63,10 +68,14 @@ class HandWidget extends StatelessWidget {
                       ),
                     );
                   }
-                  if (cards.length <= maxFull ||
-                      maxFull <= 0) {
+                  
+                  // Calculate how many cards can fit fully
+                  final available = constraints.maxWidth - 24;
+                  final maxFull = (available / (cardW + 8)).floor();
+                  
+                  if (cards.length <= maxFull || maxFull <= 0) {
                     return SizedBox(
-                      height: 120,
+                      height: cardH + 12, // card height + vertical padding
                       child: ListView.separated(
                         padding:
                             const EdgeInsets.symmetric(
@@ -101,8 +110,8 @@ class HandWidget extends StatelessWidget {
                             ),
                             childWhenDragging:
                                 const SizedBox(
-                                  width: cardW,
-                                  height: cardH,
+                                  width: 72,
+                                  height: 100,
                                 ),
                             child: CardWidget(
                               card: c,
@@ -121,94 +130,59 @@ class HandWidget extends StatelessWidget {
                       ),
                     );
                   }
-                  // Fanned layout
+                  
+                  // Fanned layout for many cards
                   final n = cards.length;
-                  final stepRaw =
-                      (available - cardW) /
-                      (n - 1);
-                  final step = stepRaw.clamp(
-                    12.0,
-                    cardW + 8.0,
-                  );
-                  final width =
-                      12 +
-                      (step * (n - 1)) +
-                      cardW +
-                      12;
+                  final stepRaw = (available - cardW) / (n - 1);
+                  final step = stepRaw.clamp(12.0, cardW + 8.0);
+                  final width = 12 + (step * (n - 1)) + cardW + 12;
+                  
                   return SizedBox(
-                    height: 120,
+                    height: cardH + 12,
                     child: SingleChildScrollView(
-                      scrollDirection:
-                          Axis.horizontal,
-                      padding:
-                          const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
-                          ),
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
                       child: SizedBox(
                         width: width,
-                        height: 120,
+                        height: cardH + 12,
                         child: Stack(
                           children: [
-                            for (
-                              int i = 0;
-                              i < cards.length;
-                              i++
-                            )
+                            for (int i = 0; i < cards.length; i++)
                               Positioned(
                                 left: i * step,
                                 child: Transform.rotate(
-                                  angle:
-                                      (i -
-                                          (cards.length -
-                                                  1) /
-                                              2) *
-                                      0.02,
-                                  child:
-                                      Draggable<
-                                        PlayingCardModel
-                                      >(
-                                        data:
-                                            cards[i],
-                                        dragAnchorStrategy:
-                                            pointerDragAnchorStrategy,
-                                        feedback: SizedBox(
-                                          width:
-                                              cardW,
-                                          height:
-                                              cardH,
-                                          child: Material(
-                                            color:
-                                                Colors.transparent,
-                                            child: CardWidget(
-                                              card:
-                                                  cards[i],
-                                              width:
-                                                  cardW,
-                                              height:
-                                                  cardH,
-                                              interactive:
-                                                  false,
-                                              isSelected: false,
-                                            ),
-                                          ),
-                                        ),
-                                        childWhenDragging: const SizedBox(
-                                          width:
-                                              cardW,
-                                          height:
-                                              cardH,
-                                        ),
+                                  angle: (i - (cards.length - 1) / 2) * 0.02,
+                                  child: Draggable<PlayingCardModel>(
+                                    data: cards[i],
+                                    dragAnchorStrategy: pointerDragAnchorStrategy,
+                                    feedback: SizedBox(
+                                      width: cardW,
+                                      height: cardH,
+                                      child: Material(
+                                        color: Colors.transparent,
                                         child: CardWidget(
-                                          card:
-                                              cards[i],
-                                          width:
-                                              cardW,
-                                          height:
-                                              cardH,
-                                          isSelected: context.read<CardSimulatorCubit>().state.selectedCardId == cards[i].id,
+                                          card: cards[i],
+                                          width: cardW,
+                                          height: cardH,
+                                          interactive: false,
+                                          isSelected: false,
                                         ),
                                       ),
+                                    ),
+                                    childWhenDragging: const SizedBox(
+                                      width: 72,
+                                      height: 100,
+                                    ),
+                                    child: CardWidget(
+                                      card: cards[i],
+                                      width: cardW,
+                                      height: cardH,
+                                      isSelected: context.read<CardSimulatorCubit>().state.selectedCardId == cards[i].id,
+                                    ),
+                                  ),
                                 ),
                               ),
                           ],

@@ -50,27 +50,15 @@ class CounterBarWidget extends StatelessWidget {
           const SizedBox(width: 6),
           _roundButton('+', onPlus),
           const SizedBox(width: 16),
-          Text(
-            'Turn $turn',
-            style: const TextStyle(
-              color: Colors.white70,
-              fontSize: 14,
-            ),
-          ),
-          const SizedBox(width: 6),
-          OutlinedButton(
-            onPressed: onNextTurn,
-            style: OutlinedButton.styleFrom(
-              foregroundColor: Colors.white70,
-              padding: const EdgeInsets.symmetric(
-                horizontal: 8,
-                vertical: 4,
+          GestureDetector(
+            onTap: onNextTurn,
+            child: Text(
+              'Turn $turn',
+              style: const TextStyle(
+                color: Colors.white70,
+                fontSize: 14,
+                decoration: TextDecoration.underline,
               ),
-              minimumSize: const Size(0, 32),
-            ),
-            child: const Text(
-              'Next',
-              style: TextStyle(fontSize: 12),
             ),
           ),
           const Spacer(),

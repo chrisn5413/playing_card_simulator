@@ -202,94 +202,92 @@ class ZoneList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment:
-          CrossAxisAlignment.start,
-      children: [
-        const SizedBox(height: 4), // Reduced from 8
-        Text(
-          title,
-          style: const TextStyle(
-            color: Colors.white,
-          ),
-        ),
-        const SizedBox(height: 4), // Reduced from 8
-        DottedBorder(
-          color: Colors.white24,
-          strokeWidth: 1.2,
-          dashPattern: const [6, 4],
-          borderType: BorderType.RRect,
-          radius: const Radius.circular(10),
-          child: SizedBox(
-            height: KSize.otherZoneHeight, // Use consistent height
-            child: Padding(
-              padding: const EdgeInsets.all(8),
-              child: cards.isNotEmpty
-                  ? Align(
-                      alignment:
-                          Alignment.topCenter,
-                      child: Draggable<PlayingCardModel>(
-                        data: cards.first,
-                        dragAnchorStrategy:
-                            childDragAnchorStrategy,
-                        hitTestBehavior:
-                            HitTestBehavior
-                                .translucent,
-                        feedback: SizedBox(
-                          width: 72,
-                          height: 100,
-                          child: Material(
-                            color: Colors
-                                .transparent,
-                            child: CardWidget(
-                              card: cards.first
-                                  .copyWith(
-                                    isFaceDown:
-                                        false,
-                                  ),
-                              width: 72,
-                              height: 100,
-                              interactive: false,
-                            ),
-                          ),
-                        ),
-                        childWhenDragging:
-                            const SizedBox(
-                              width: 72,
-                              height: 100,
-                            ),
-                        child: Stack(
-                          children: [
-                            CardWidget(
-                              card: cards.first
-                                  .copyWith(
-                                    isFaceDown:
-                                        false,
-                                  ),
-                              width: 72,
-                              height: 100,
-                              interactive: true,
-                              isSelected:
-                                  context
-                                      .read<
-                                        CardSimulatorCubit
-                                      >()
-                                      .state
-                                      .selectedCardId ==
-                                  cards.first.id,
-                            ),
-                          ],
-                        ),
-                      ),
-                    )
-                  : const SizedBox(
-                      width: double.infinity,
-                      height: double.infinity,
-                    ),
+    return DottedBorder(
+      color: Colors.white24,
+      strokeWidth: 1.2,
+      dashPattern: const [6, 4],
+      borderType: BorderType.RRect,
+      radius: const Radius.circular(10),
+      child: SizedBox(
+        height: KSize.otherZoneHeight, // Use consistent height
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(
+                left: 12,
+                top: 6,
+                bottom: 4,
+              ),
+              child: Text(
+                title,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                ),
+              ),
             ),
-          ),
+            Expanded(
+                               child: LayoutBuilder(
+                   builder: (context, constraints) {
+                                           // Use consistent smaller card size to match other zones and prevent overflow
+                      const cardW = 50.0; // Reduced to match hand/library
+                      const cardH = 69.0; // Reduced to match hand/library
+                  
+                                     return Padding(
+                     padding: const EdgeInsets.all(6), // Reduced from 8
+                    child: cards.isNotEmpty
+                        ? Align(
+                            alignment: Alignment.topCenter,
+                            child: Draggable<PlayingCardModel>(
+                              data: cards.first,
+                              dragAnchorStrategy: childDragAnchorStrategy,
+                              hitTestBehavior: HitTestBehavior.translucent,
+                              feedback: SizedBox(
+                                width: cardW,
+                                height: cardH,
+                                child: Material(
+                                  color: Colors.transparent,
+                                  child: CardWidget(
+                                    card: cards.first.copyWith(isFaceDown: false),
+                                    width: cardW,
+                                    height: cardH,
+                                    interactive: false,
+                                  ),
+                                ),
+                              ),
+                              childWhenDragging: SizedBox(
+                                width: cardW,
+                                height: cardH,
+                              ),
+                              child: Stack(
+                                children: [
+                                  CardWidget(
+                                    card: cards.first.copyWith(isFaceDown: false),
+                                    width: cardW,
+                                    height: cardH,
+                                    interactive: true,
+                                    isSelected: context
+                                            .read<CardSimulatorCubit>()
+                                            .state
+                                            .selectedCardId ==
+                                        cards.first.id,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )
+                        : const SizedBox(
+                            width: double.infinity,
+                            height: double.infinity,
+                          ),
+                  );
+                },
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }

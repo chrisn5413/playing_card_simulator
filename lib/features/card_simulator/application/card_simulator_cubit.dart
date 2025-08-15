@@ -29,8 +29,44 @@ class CardSimulatorCubit
     // No default deck - user must load their own deck
   }
 
-  void reset() =>
-      emit(CardSimulatorState.initial());
+  void reset() {
+    final allCards = _allCards();
+    
+    if (allCards.isEmpty) {
+      // No cards - just reset counters
+      emit(state.copyWith(
+        life: 40,
+        turn: 1,
+        selectedCardId: null,
+      ));
+    } else {
+      // Move all cards to library and shuffle
+      final library = allCards.map((card) => card.copyWith(
+        zone: Zone.library,
+        position: null,
+        isTapped: false,
+        isFaceDown: true,
+      )).toList();
+      
+      emit(state.copyWith(
+        battlefield: [],
+        hand: [],
+        library: library,
+        graveyard: [],
+        exile: [],
+        command: [],
+        life: 40,
+        turn: 1,
+        selectedCardId: null,
+      ));
+      
+      // Shuffle the library
+      shuffleLibrary();
+      
+      // Draw 7 cards to hand
+      draw(7);
+    }
+  }
 
   Future<void> confirmAndReset(
     BuildContext context,
@@ -38,9 +74,15 @@ class CardSimulatorCubit
     final shouldReset = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Reset Board?'),
-        content: const Text(
-          'This will return all cards to their original zones and shuffle.',
+        title: const Text('Reset?'),
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Life: 40'),
+            Text('Board Reset'),
+            Text('Draw 7'),
+          ],
         ),
         actions: [
           TextButton(
@@ -58,70 +100,48 @@ class CardSimulatorCubit
     );
     if (shouldReset != true) return;
 
-    final all = _allCards();
-    final battlefield = <PlayingCardModel>[];
-    final hand = <PlayingCardModel>[];
-    final library = <PlayingCardModel>[];
-    final graveyard = <PlayingCardModel>[];
-    final exile = <PlayingCardModel>[];
-    final command = <PlayingCardModel>[];
-
-    for (final c in all) {
-      final original = c.copyWith(
-        zone: c.originZone,
-        position: null,
-        isTapped: false,
-      );
-      switch (original.originZone) {
-        case Zone.battlefield:
-          battlefield.add(original);
-          break;
-        case Zone.hand:
-          hand.add(original);
-          break;
-        case Zone.library:
-          library.add(original);
-          break;
-        case Zone.graveyard:
-          graveyard.add(original);
-          break;
-        case Zone.exile:
-          exile.add(original);
-          break;
-        case Zone.command:
-          command.add(original);
-          break;
-      }
-    }
-    library.shuffle();
-    hand.shuffle();
-    battlefield.shuffle();
-    graveyard.shuffle();
-    exile.shuffle();
-    command.shuffle();
-
-    emit(
-      CardSimulatorState(
-        battlefield: battlefield,
-        hand: hand,
-        library: library,
-        graveyard: graveyard,
-        exile: exile,
-        command: command,
-        life: 40,
-        turn: 1,
-
-        currentDeckName: state.currentDeckName,
-      ),
-    );
+    // Use the same reset logic
+    reset();
   }
 
   void incrementLife() =>
       emit(state.copyWith(life: state.life + 1));
   void decrementLife() =>
       emit(state.copyWith(life: state.life - 1));
-  void nextTurn() =>
-      emit(state.copyWith(turn: state.turn + 1));
+  void nextTurn() {
+    // Increment turn number
+    final newTurn = state.turn + 1;
+    
+    // Draw a card from library to hand
+    draw(1);
+    
+    // Untap all cards in all zones
+    final newBattlefield = state.battlefield.map((card) => card.copyWith(
+      isTapped: false,
+    )).toList();
+    
+    final newGraveyard = state.graveyard.map((card) => card.copyWith(
+      isTapped: false,
+    )).toList();
+    
+    final newExile = state.exile.map((card) => card.copyWith(
+      isTapped: false,
+    )).toList();
+    
+    final newCommand = state.command.map((card) => card.copyWith(
+      isTapped: false,
+    )).toList();
+    
+    // Clear card selection
+    emit(state.copyWith(
+      turn: newTurn,
+      battlefield: newBattlefield,
+      graveyard: newGraveyard,
+      exile: newExile,
+      command: newCommand,
+      selectedCardId: null,
+    ));
+  }
 
   void addCardToLibrary({
     required String name,
@@ -145,13 +165,25 @@ class CardSimulatorCubit
   void draw(int count) {
     if (state.library.isEmpty) return;
 
-    // Move cards from library to hand using the consolidated moveCard method
-    final drawn = state.library
-        .take(count)
-        .toList();
-    for (final card in drawn) {
-      moveCard(card.id, Zone.hand);
-    }
+    // Take cards from library and add to hand
+    final drawn = state.library.take(count).toList();
+    final newLibrary = state.library.skip(count).toList();
+    final newHand = [...state.hand, ...drawn.map((card) => card.copyWith(
+      zone: Zone.hand,
+      isFaceDown: false,
+      isTapped: false,
+    ))];
+    
+    emit(state.copyWith(
+      library: newLibrary,
+      hand: newHand,
+    ));
+  }
+
+  void shuffleLibrary() {
+    final library = List<PlayingCardModel>.from(state.library);
+    library.shuffle();
+    emit(state.copyWith(library: library));
   }
 
   // Deck loading
@@ -253,7 +285,6 @@ class CardSimulatorCubit
       }
     } catch (e) {
       // If import fails, show an error
-      print('Failed to import deck: $e');
       if (context.mounted) {
         ScaffoldMessenger.of(
           context,
@@ -274,14 +305,7 @@ class CardSimulatorCubit
     BuildContext context,
   ) async {
     try {
-      print(
-        'Starting Android folder selection...',
-      );
-
       // Request comprehensive storage permissions
-      print(
-        'Requesting comprehensive storage permissions...',
-      );
 
       // Request only necessary storage permissions
       final permissions = [
@@ -294,20 +318,11 @@ class CardSimulatorCubit
 
       for (final permission in permissions) {
         final status = await permission.status;
-        print(
-          '${permission.toString()}: $status',
-        );
 
         if (!status.isGranted) {
-          print(
-            'Requesting ${permission.toString()}...',
-          );
           final result = await permission
               .request();
           statuses[permission] = result;
-          print(
-            '${permission.toString()} result: $result',
-          );
         } else {
           statuses[permission] = status;
         }
@@ -323,15 +338,12 @@ class CardSimulatorCubit
                   ?.isGranted ==
               true;
 
-      print(
-        'Has storage access: $hasStorageAccess',
-      );
+
 
       // Try multiple approaches for folder access
       List<String> images = [];
 
       // Approach 1: Try directory picker with proper permission handling
-      print('Opening directory picker...');
       final selectedDir = await FilePicker
           .platform
           .getDirectoryPath(
@@ -339,10 +351,7 @@ class CardSimulatorCubit
                 'Select folder containing card images',
           );
 
-      if (selectedDir != null) {
-        print(
-          'User selected directory: $selectedDir',
-        );
+              if (selectedDir != null) {
 
         // Try to access the directory contents with multiple methods
         images =
@@ -351,18 +360,12 @@ class CardSimulatorCubit
             );
 
         if (images.isNotEmpty) {
-          print(
-            'Found ${images.length} images using directory access',
-          );
           return images;
         }
       }
 
       // Approach 2: If directory scanning failed, try file picker with folder navigation
       if (images.isEmpty) {
-        print(
-          'Directory scanning failed, trying file picker with folder navigation...',
-        );
         if (context.mounted) {
           ScaffoldMessenger.of(
             context,
@@ -389,7 +392,6 @@ class CardSimulatorCubit
 
       return [];
     } catch (e) {
-      print('Error selecting Android folder: $e');
       if (context.mounted) {
         ScaffoldMessenger.of(
           context,
@@ -411,9 +413,6 @@ class CardSimulatorCubit
   _tryMultipleDirectoryAccessMethods(
     String dirPath,
   ) async {
-    print(
-      'Trying multiple directory access methods for: $dirPath',
-    );
 
     // Method 1: Try standard directory listing
     try {
@@ -422,13 +421,10 @@ class CardSimulatorCubit
             dirPath,
           );
       if (images.isNotEmpty) {
-        print(
-          'Method 1 (standard listing) succeeded with ${images.length} images',
-        );
         return images;
       }
     } catch (e) {
-      print('Method 1 failed: $e');
+      // Method 1 failed
     }
 
     // Method 2: Try with different permission approach
@@ -438,13 +434,10 @@ class CardSimulatorCubit
             dirPath,
           );
       if (images.isNotEmpty) {
-        print(
-          'Method 2 (permission-based) succeeded with ${images.length} images',
-        );
         return images;
       }
     } catch (e) {
-      print('Method 2 failed: $e');
+      // Method 2 failed
     }
 
     // Method 3: Try with file picker in the same directory
@@ -452,16 +445,11 @@ class CardSimulatorCubit
       final images =
           await _pickFilesFromDirectory(dirPath);
       if (images.isNotEmpty) {
-        print(
-          'Method 3 (file picker) succeeded with ${images.length} images',
-        );
         return images;
       }
     } catch (e) {
-      print('Method 3 failed: $e');
+      // Method 3 failed
     }
-
-    print('All directory access methods failed');
     return [];
   }
 
@@ -470,9 +458,6 @@ class CardSimulatorCubit
     String dirPath,
   ) async {
     try {
-      print(
-        'Attempting directory scan with permissions: $dirPath',
-      );
 
       // Check only necessary storage permissions
       final permissions = [
@@ -487,7 +472,7 @@ class CardSimulatorCubit
             await permission.status;
       }
 
-      print('Permission statuses: $statuses');
+
 
       // Request permissions if not granted
       bool hasAnyPermission = false;
@@ -500,17 +485,11 @@ class CardSimulatorCubit
       }
 
       if (!hasAnyPermission) {
-        print(
-          'No permissions granted, requesting permissions...',
-        );
         for (final permission in permissions) {
           if (statuses[permission]?.isGranted !=
               true) {
             final result = await permission
                 .request();
-            print(
-              '${permission.toString()} request result: $result',
-            );
             if (result.isGranted) {
               hasAnyPermission = true;
             }
@@ -518,15 +497,8 @@ class CardSimulatorCubit
         }
       }
 
-      print(
-        'Has any permission: $hasAnyPermission',
-      );
-
       final dir = Directory(dirPath);
       if (!await dir.exists()) {
-        print(
-          'Directory does not exist: $dirPath',
-        );
         return [];
       }
 
@@ -535,13 +507,7 @@ class CardSimulatorCubit
 
       try {
         allFiles = await dir.list().toList();
-        print(
-          'Permission-based listing found ${allFiles.length} items',
-        );
       } catch (e) {
-        print(
-          'Permission-based listing failed: $e',
-        );
         return [];
       }
 
@@ -557,14 +523,8 @@ class CardSimulatorCubit
           })
           .toList();
 
-      print(
-        'Found ${imageFiles.length} image files with permissions',
-      );
       return imageFiles;
     } catch (e) {
-      print(
-        'Error in permission-based directory scan: $e',
-      );
       return [];
     }
   }
@@ -573,9 +533,6 @@ class CardSimulatorCubit
     String dirPath,
   ) async {
     try {
-      print(
-        'Attempting file picker from directory: $dirPath',
-      );
 
       // Try to use file picker with the directory path as starting point
       final result = await FilePicker.platform
@@ -596,9 +553,6 @@ class CardSimulatorCubit
 
       if (result != null &&
           result.files.isNotEmpty) {
-        print(
-          'File picker from directory selected ${result.files.length} files',
-        );
 
         final images = result.files
             .where((file) => file.path != null)
@@ -612,15 +566,11 @@ class CardSimulatorCubit
             })
             .toList();
 
-        print(
-          'Found ${images.length} valid image files from directory picker',
-        );
         return images;
       }
 
       return [];
     } catch (e) {
-      print('Error in directory file picker: $e');
       return [];
     }
   }
@@ -629,15 +579,9 @@ class CardSimulatorCubit
     String dirPath,
   ) async {
     try {
-      print(
-        'Attempting recursive directory scan: $dirPath',
-      );
 
       final dir = Directory(dirPath);
       if (!await dir.exists()) {
-        print(
-          'Directory does not exist: $dirPath',
-        );
         return [];
       }
 
@@ -647,26 +591,18 @@ class CardSimulatorCubit
       try {
         // Approach 1: Standard directory listing
         allFiles = await dir.list().toList();
-        print(
-          'Standard listing found ${allFiles.length} items',
-        );
       } catch (e) {
-        print('Standard listing failed: $e');
+        // Standard listing failed
 
-        try {
-          // Approach 2: Try with recursive listing
-          allFiles = await dir
-              .list(recursive: true)
-              .toList();
-          print(
-            'Recursive listing found ${allFiles.length} items',
-          );
-        } catch (e2) {
-          print(
-            'Recursive listing also failed: $e2',
-          );
-          return [];
-        }
+                  try {
+            // Approach 2: Try with recursive listing
+            allFiles = await dir
+                .list(recursive: true)
+                .toList();
+          } catch (e2) {
+            // Recursive listing also failed
+            return [];
+          }
       }
 
       // Filter for image files
@@ -681,27 +617,8 @@ class CardSimulatorCubit
           })
           .toList();
 
-      print(
-        'Found ${imageFiles.length} image files in recursive scan',
-      );
-
-      // Log first few image files for debugging
-      if (imageFiles.isNotEmpty) {
-        print('First few image files:');
-        for (
-          int i = 0;
-          i < math.min(3, imageFiles.length);
-          i++
-        ) {
-          print('  - ${imageFiles[i]}');
-        }
-      }
-
       return imageFiles;
     } catch (e) {
-      print(
-        'Error in recursive directory scan: $e',
-      );
       return [];
     }
   }
@@ -710,9 +627,6 @@ class CardSimulatorCubit
     BuildContext context,
   ) async {
     try {
-      print(
-        'Opening file picker for individual file selection...',
-      );
 
       final result = await FilePicker.platform
           .pickFiles(
@@ -732,9 +646,6 @@ class CardSimulatorCubit
 
       if (result != null &&
           result.files.isNotEmpty) {
-        print(
-          'File picker selected ${result.files.length} files',
-        );
 
         final images = result.files
             .where((file) => file.path != null)
@@ -748,14 +659,8 @@ class CardSimulatorCubit
             })
             .toList();
 
-        print(
-          'Found ${images.length} valid image files',
-        );
         return images;
       } else {
-        print(
-          'No files selected in fallback picker',
-        );
         if (context.mounted) {
           ScaffoldMessenger.of(
             context,
@@ -773,7 +678,6 @@ class CardSimulatorCubit
 
       return [];
     } catch (e) {
-      print('Error in fallback file picker: $e');
       return [];
     }
   }
@@ -781,17 +685,11 @@ class CardSimulatorCubit
   Future<List<String>>
   _browseAndroidDirectory() async {
     try {
-      print(
-        'Starting Android directory browsing...',
-      );
-
       // Request storage permissions
       final status = await Permission.storage
           .request();
-      print('Storage permission status: $status');
 
       if (!status.isGranted) {
-        print('Storage permission denied');
         return [];
       }
 
@@ -799,15 +697,8 @@ class CardSimulatorCubit
       final externalDir =
           await getExternalStorageDirectory();
       if (externalDir == null) {
-        print(
-          'Could not access external storage',
-        );
         return [];
       }
-
-      print(
-        'External storage path: ${externalDir.path}',
-      );
 
       // Try to find common directories where card images might be stored
       final possiblePaths = [
@@ -821,31 +712,18 @@ class CardSimulatorCubit
         '/storage/emulated/0/DCIM',
       ];
 
-      print(
-        'Checking possible paths: $possiblePaths',
-      );
-
       for (final path in possiblePaths) {
         final dir = Directory(path);
         final exists = await dir.exists();
-        print('Directory $path exists: $exists');
 
         if (exists) {
-          print('Checking directory: $path');
           final images =
               await _scanDirectoryForImages(dir);
           if (images.isNotEmpty) {
-            print(
-              'Found ${images.length} images in $path',
-            );
             return images;
           }
         }
       }
-
-      print(
-        'No images found in common directories, opening directory picker...',
-      );
 
       // If no images found in common directories, let user select a directory
       final selectedDir = await FilePicker
@@ -853,32 +731,18 @@ class CardSimulatorCubit
           .getDirectoryPath();
 
       if (selectedDir != null) {
-        print(
-          'User selected directory: $selectedDir',
-        );
         final dir = Directory(selectedDir);
         final exists = await dir.exists();
-        print(
-          'Selected directory exists: $exists',
-        );
 
         if (exists) {
           final images =
               await _scanDirectoryForImages(dir);
-          print(
-            'Found ${images.length} images in selected directory',
-          );
           return images;
         }
-      } else {
-        print('No directory selected by user');
       }
 
       return [];
     } catch (e) {
-      print(
-        'Error browsing Android directory: $e',
-      );
       return [];
     }
   }
@@ -887,23 +751,9 @@ class CardSimulatorCubit
     Directory directory,
   ) async {
     try {
-      print(
-        'Scanning directory: ${directory.path}',
-      );
-
       final allFiles = await directory
           .list()
           .toList();
-      print(
-        'Found ${allFiles.length} total files in ${directory.path}',
-      );
-
-      // Log all files for debugging
-      for (final file in allFiles) {
-        print(
-          'File: ${file.path} (type: ${file.runtimeType})',
-        );
-      }
 
       final imageFiles = allFiles
           .where((e) => e is File)
@@ -914,45 +764,12 @@ class CardSimulatorCubit
                 lowerPath.endsWith('.png') ||
                 lowerPath.endsWith('.jpg') ||
                 lowerPath.endsWith('.jpeg');
-            print(
-              'Checking path: $path -> isImage: $isImage',
-            );
             return isImage;
           })
           .toList();
 
-      print(
-        'Found ${imageFiles.length} image files',
-      );
-
-      // Log all image files for debugging
-      if (imageFiles.isNotEmpty) {
-        print('All image files found:');
-        for (final image in imageFiles) {
-          print('  - $image');
-        }
-      } else {
-        print(
-          'No image files found. Checking file extensions...',
-        );
-        final allPaths = allFiles
-            .where((e) => e is File)
-            .map((e) => e.path)
-            .toList();
-        for (final path in allPaths) {
-          final extension = path
-              .split('.')
-              .last
-              .toLowerCase();
-          print(
-            '  File: $path -> Extension: $extension',
-          );
-        }
-      }
-
       return imageFiles;
     } catch (e) {
-      print('Error scanning directory: $e');
       return [];
     }
   }
@@ -960,9 +777,6 @@ class CardSimulatorCubit
   Future<List<String>>
   _pickMultipleFilesOnAndroid() async {
     try {
-      print(
-        'Using file picker fallback for Android...',
-      );
 
       final result = await FilePicker.platform
           .pickFiles(
@@ -997,18 +811,11 @@ class CardSimulatorCubit
             )
             .toList();
 
-        print(
-          'File picker selected ${images.length} images',
-        );
         return images;
       }
 
-      print('No files selected via file picker');
       return [];
     } catch (e) {
-      print(
-        'Error with file picker fallback: $e',
-      );
       return [];
     }
   }
@@ -1036,7 +843,6 @@ class CardSimulatorCubit
       return await _deckRepository
           .loadSavedDecks();
     } catch (e) {
-      print('Failed to load saved decks: $e');
       // Return empty list if loading fails - no default deck
       return [];
     }
@@ -1053,7 +859,6 @@ class CardSimulatorCubit
       _loadDeck(deck);
     } catch (e) {
       // If loading fails, show error but don't create default deck
-      print('Failed to load deck "$name": $e');
     }
   }
 
@@ -1070,7 +875,6 @@ class CardSimulatorCubit
           ),
         )
         .toList();
-    library.shuffle();
     emit(
       CardSimulatorState(
         battlefield: const [],
@@ -1082,8 +886,15 @@ class CardSimulatorCubit
         life: 40,
         turn: 1,
         currentDeckName: deck.name,
+        selectedCardId: null,
       ),
     );
+    
+    // Shuffle the library
+    shuffleLibrary();
+    
+    // Draw 7 cards to hand to start the game
+    draw(7);
   }
 
   String _getImageUrl(String path) {
@@ -1421,19 +1232,8 @@ class CardSimulatorCubit
 
   // Card selection methods
   void selectCard(String? cardId) {
-    print(
-      'Cubit selectCard called with cardId: $cardId',
-    );
-    print(
-      'Current selectedCardId: ${state.selectedCardId}',
-    );
-
     final newState = state.copyWith(
       selectedCardId: cardId,
-    );
-
-    print(
-      'New selectedCardId will be: ${newState.selectedCardId}',
     );
     emit(newState);
   }

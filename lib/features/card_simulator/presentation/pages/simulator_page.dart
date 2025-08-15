@@ -8,6 +8,7 @@ import '../../../card_simulator/application/card_simulator_state.dart';
 import '../../../card_simulator/domain/entities/playing_card_model.dart';
 import '../widgets/battlefield_widget.dart';
 import '../widgets/other_zones_sheet.dart';
+import '../widgets/zone_widgets.dart';
 import '../widgets/counter_bar_widget.dart';
 import '../../../../core/constants/k_sizes.dart';
 
@@ -62,63 +63,63 @@ class _SimulatorPageState
           ),
           body: Column(
             children: [
-              // Battlefield zone - takes 3/5 of available space
-              Expanded(
-                flex: 3,
-                child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 8,
-                      ),
-                  child: GestureDetector(
-                    onTap: () => context
-                        .read<
-                          CardSimulatorCubit
-                        >()
-                        .clearSelection(),
-                    child: DragTarget<PlayingCardModel>(
-                      onAcceptWithDetails: (d) {
-                        final box =
-                            _battlefieldKey
-                                    .currentContext
-                                    ?.findRenderObject()
-                                as RenderBox?;
-                        final local =
-                            box?.globalToLocal(
-                              d.offset,
-                            ) ??
-                            const Offset(40, 40);
-                        context
-                            .read<
-                              CardSimulatorCubit
-                            >()
-                            .moveCard(
-                              d.data.id,
-                              Zone.battlefield,
-                              position: local,
-                            );
-                      },
-                      builder:
-                          (
-                            context,
-                            candidate,
-                            rejected,
-                          ) => Container(
-                            key: _battlefieldKey,
-                            child:
-                                BattlefieldWidget(
-                                  cards: state
-                                      .battlefield,
-                                ),
-                          ),
-                    ),
-                  ),
-                ),
-              ),
-              // Bottom zone - takes 2/5 of available space
-              Expanded(
-                flex: 2,
+                             // Battlefield zone - takes 55% of available space
+               Expanded(
+                 flex: 11, // 11/20 = 55%
+                 child: Padding(
+                   padding:
+                       const EdgeInsets.symmetric(
+                         horizontal: 8,
+                         vertical: 8,
+                       ),
+                   child: GestureDetector(
+                     onTap: () => context
+                         .read<
+                           CardSimulatorCubit
+                         >()
+                         .clearSelection(),
+                     child: DragTarget<PlayingCardModel>(
+                       onAcceptWithDetails: (d) {
+                         final box =
+                             _battlefieldKey
+                                     .currentContext
+                                     ?.findRenderObject()
+                                 as RenderBox?;
+                         final local =
+                             box?.globalToLocal(
+                               d.offset,
+                             ) ??
+                             const Offset(40, 40);
+                         context
+                             .read<
+                               CardSimulatorCubit
+                             >()
+                             .moveCard(
+                               d.data.id,
+                               Zone.battlefield,
+                               position: local,
+                             );
+                       },
+                       builder:
+                           (
+                             context,
+                             candidate,
+                             rejected,
+                           ) => Container(
+                             key: _battlefieldKey,
+                             child:
+                                 BattlefieldWidget(
+                                   cards: state
+                                       .battlefield,
+                                 ),
+                           ),
+                     ),
+                   ),
+                 ),
+               ),
+               // Bottom zone - takes 45% of available space
+               Expanded(
+                 flex: 9, // 9/20 = 45%
                 child: Padding(
                   padding: const EdgeInsets.only(
                     bottom: 8,
@@ -204,119 +205,56 @@ class _SimulatorPageState
                         child:
                             state.showOtherZones
                             ? // Show Other Zones
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child:
-                                        DragTarget<
-                                          PlayingCardModel
-                                        >(
-                                          onAcceptWithDetails: (d) => context
-                                              .read<
-                                                CardSimulatorCubit
-                                              >()
-                                              .moveCard(
-                                                d.data.id,
-                                                Zone.graveyard,
-                                              ),
-                                          builder:
-                                              (
-                                                context,
-                                                a,
-                                                r,
-                                              ) => ZoneList(
-                                                title: 'Graveyard (${state.graveyard.length})',
-                                                cards: state.graveyard,
-                                              ),
-                                        ),
-                                  ),
-                                  const SizedBox(
-                                    width: 8,
-                                  ),
-                                  Expanded(
-                                    child:
-                                        DragTarget<
-                                          PlayingCardModel
-                                        >(
-                                          onAcceptWithDetails: (d) => context
-                                              .read<
-                                                CardSimulatorCubit
-                                              >()
-                                              .moveCard(
-                                                d.data.id,
-                                                Zone.exile,
-                                              ),
-                                          builder:
-                                              (
-                                                context,
-                                                a,
-                                                r,
-                                              ) => ZoneList(
-                                                title: 'Exile (${state.exile.length})',
-                                                cards: state.exile,
-                                              ),
-                                        ),
-                                  ),
-                                  const SizedBox(
-                                    width: 8,
-                                  ),
-                                  Expanded(
-                                    child:
-                                        DragTarget<
-                                          PlayingCardModel
-                                        >(
-                                          onAcceptWithDetails: (d) => context
-                                              .read<
-                                                CardSimulatorCubit
-                                              >()
-                                              .moveCard(
-                                                d.data.id,
-                                                Zone.command,
-                                              ),
-                                          builder:
-                                              (
-                                                context,
-                                                a,
-                                                r,
-                                              ) => ZoneList(
-                                                title: 'Command',
-                                                cards: state.command,
-                                              ),
-                                        ),
-                                  ),
-                                ],
-                              )
+                                                             Row(
+                                 children: [
+                                   const Expanded(
+                                     child: GraveyardZone(),
+                                   ),
+                                   const SizedBox(
+                                     width: 8,
+                                   ),
+                                   const Expanded(
+                                     child: ExileZone(),
+                                   ),
+                                   const SizedBox(
+                                     width: 8,
+                                   ),
+                                   const Expanded(
+                                     child: CommandZone(),
+                                   ),
+                                 ],
+                               )
                             : // Show Hand/Library
                               Row(
                                 crossAxisAlignment:
                                     CrossAxisAlignment
                                         .start,
                                 children: [
-                                  Expanded(
-                                    flex: 3,
-                                    child: GestureDetector(
-                                      onTap: () => context
-                                          .read<
-                                            CardSimulatorCubit
-                                          >()
-                                          .clearSelection(),
-                                      child: _HandDropArea(
-                                        cards: state
-                                            .hand,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(
-                                    width: 8,
-                                  ),
-                                  Expanded(
-                                    flex: 1,
-                                    child: _LibrarySection(
-                                      count: state
-                                          .library
-                                          .length,
-                                    ),
-                                  ),
+                                                                     Expanded(
+                                     flex: 7, // Hand zone gets 7/10 of the space
+                                     child: GestureDetector(
+                                       onTap: () => context
+                                           .read<
+                                             CardSimulatorCubit
+                                           >()
+                                           .clearSelection(),
+                                       child: _HandDropArea(
+                                         cards: state
+                                             .hand,
+                                       ),
+                                     ),
+                                   ),
+                                   const SizedBox(
+                                     width: 8,
+                                   ),
+                                   Expanded(
+                                     flex: 3, // Library zone gets 3/10 of the space
+                                     child: _LibrarySection(
+                                       count: state
+                                           .library
+                                           .length,
+                                     ),
+                                   ),
                                 ],
                               ),
                       ),
@@ -428,41 +366,90 @@ class _SimulatorPageState
                     ),
                   ),
                 ],
-                Row(
-                  mainAxisAlignment:
-                      MainAxisAlignment
-                          .spaceBetween,
-                  children: [
-                    FilledButton.icon(
-                      onPressed: () {
-                        Navigator.pop(context);
-                        cubit.reset();
-                      },
-                      icon: const Icon(
-                        Icons.refresh,
-                      ),
-                      label: const Text(
-                        'Reset to Default',
-                      ),
-                    ),
-                    FilledButton.icon(
-                      onPressed: () async {
-                        Navigator.pop(context);
-                        await cubit
-                            .importDeckFromFolder(
-                              context,
-                            );
-                      },
-                      icon: const Icon(
-                        Icons.folder_open,
-                      ),
-                      label: Text(
-                        Platform.isAndroid
-                            ? 'Select Folder'
-                            : 'Import from folder',
-                      ),
-                    ),
-                  ],
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    // If screen width is less than 400px, stack buttons vertically
+                    if (constraints.maxWidth < 400) {
+                      return Column(
+                        children: [
+                          SizedBox(
+                            width: double.infinity,
+                            child: FilledButton.icon(
+                              onPressed: () {
+                                Navigator.pop(context);
+                                cubit.reset();
+                              },
+                              icon: const Icon(
+                                Icons.refresh,
+                              ),
+                              label: const Text(
+                                'Reset to Default',
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          SizedBox(
+                            width: double.infinity,
+                            child: FilledButton.icon(
+                              onPressed: () async {
+                                Navigator.pop(context);
+                                await cubit
+                                    .importDeckFromFolder(
+                                      context,
+                                    );
+                              },
+                              icon: const Icon(
+                                Icons.folder_open,
+                              ),
+                              label: Text(
+                                Platform.isAndroid
+                                    ? 'Select Folder'
+                                    : 'Import from folder',
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    } else {
+                      // Otherwise, use horizontal layout
+                      return Row(
+                        mainAxisAlignment:
+                            MainAxisAlignment
+                                .spaceBetween,
+                        children: [
+                          FilledButton.icon(
+                            onPressed: () {
+                              Navigator.pop(context);
+                              cubit.reset();
+                            },
+                            icon: const Icon(
+                              Icons.refresh,
+                            ),
+                            label: const Text(
+                              'Reset to Default',
+                            ),
+                          ),
+                          FilledButton.icon(
+                            onPressed: () async {
+                              Navigator.pop(context);
+                              await cubit
+                                  .importDeckFromFolder(
+                                    context,
+                                  );
+                            },
+                            icon: const Icon(
+                              Icons.folder_open,
+                            ),
+                            label: Text(
+                              Platform.isAndroid
+                                  ? 'Select Folder'
+                                  : 'Import from folder',
+                            ),
+                          ),
+                        ],
+                      );
+                    }
+                  },
                 ),
               ],
             ),
@@ -673,156 +660,125 @@ class _LibrarySection extends StatelessWidget {
             crossAxisAlignment:
                 CrossAxisAlignment.start,
             children: [
-              Padding(
-                padding: const EdgeInsets.only(
-                  left: 12,
-                  top: 6, // Reduced from 8
-                  bottom: 4,
-                ),
-                child: GestureDetector(
-                  onTap: () =>
-                      _showLibraryContextMenu(
-                        context,
-                      ),
-                  child: Row(
-                    mainAxisSize:
-                        MainAxisSize.min,
-                    children: [
-                      Flexible(
-                        child: Text(
-                          'Library',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 14,
-                          ),
-                          overflow: TextOverflow
-                              .ellipsis,
+                             Padding(
+                 padding: const EdgeInsets.only(
+                   left: 12,
+                   top: 6, // Reduced from 8
+                   bottom: 4,
+                   right: 12,
+                 ),
+                                  child: GestureDetector(
+                    onTap: () =>
+                        _showLibraryContextMenu(
+                          context,
                         ),
-                      ),
-                      const SizedBox(width: 2),
-                      const Icon(
-                        Icons.keyboard_arrow_up,
-                        color: Colors.white70,
-                        size: 14,
-                      ),
-                    ],
+                    child: Row(
+                      mainAxisSize:
+                          MainAxisSize.min,
+                      children: [
+                        Expanded(
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              'Library (${count})', // Added count back to title
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 2),
+                        const Icon(
+                          Icons.keyboard_arrow_up,
+                          color: Colors.white70,
+                          size: 14,
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ),
+               ),
               Expanded(
                 child: count > 0
                     ? Padding(
-                        padding:
-                            const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 6,
-                            ),
-                        child: Column(
-                          mainAxisSize:
-                              MainAxisSize.min,
-                          children: [
-                            Align(
-                              alignment: Alignment
-                                  .topCenter,
-                              child: Draggable<PlayingCardModel>(
-                                data: context
-                                    .read<
-                                      CardSimulatorCubit
-                                    >()
-                                    .state
-                                    .library
-                                    .first,
-                                dragAnchorStrategy:
-                                    childDragAnchorStrategy,
-                                feedback: SizedBox(
-                                  width: 72,
-                                  height: 100,
-                                  child: Material(
-                                    color: Colors
-                                        .transparent,
-                                    child: CardWidget(
-                                      card: context
-                                          .read<
-                                            CardSimulatorCubit
-                                          >()
-                                          .state
-                                          .library
-                                          .first
-                                          .copyWith(
-                                            isFaceDown:
-                                                false,
-                                          ),
-                                      width: 72,
-                                      height: 100,
-                                      interactive:
-                                          false,
-                                    ),
-                                  ),
-                                ),
-                                childWhenDragging:
-                                    const SizedBox(
-                                      width: 72,
-                                      height: 100,
-                                    ),
-                                child: GestureDetector(
-                                  onTap: () => context
-                                      .read<
-                                        CardSimulatorCubit
-                                      >()
-                                      .draw(1),
-                                  child: Container(
-                                    width: 72,
-                                    height: 100,
-                                    decoration: BoxDecoration(
-                                      color: Colors
-                                          .white,
-                                      border: Border.all(
-                                        color: Colors
-                                            .black,
-                                        width: 4,
-                                      ),
-                                      borderRadius:
-                                          BorderRadius.circular(
-                                            6,
-                                          ),
-                                    ),
-                                    alignment:
-                                        Alignment
-                                            .center,
-                                    child: const Padding(
-                                      padding:
-                                          EdgeInsets.all(
-                                            4.0,
-                                          ),
-                                      child: Text(
-                                        'CARD BACK\nNO IMAGE',
-                                        textAlign:
-                                            TextAlign
-                                                .center,
-                                        style: TextStyle(
-                                          color: Colors
-                                              .black,
-                                          fontSize:
-                                              12,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(
-                              height: 4,
-                            ),
-                            Text(
-                              '($count)',
-                              style:
-                                  const TextStyle(
-                                    color: Colors
-                                        .white70,
-                                    fontSize: 12,
-                                  ),
-                            ),
+                                                 padding:
+                             const EdgeInsets.symmetric(
+                               horizontal: 8,
+                               vertical: 4, // Reduced from 6
+                             ),
+                                                 child: Column(
+                           mainAxisSize:
+                               MainAxisSize.min,
+                           children: [
+                                                          LayoutBuilder(
+                                 builder: (context, constraints) {
+                                                                     // Use smaller card size to prevent overflow
+                                    const cardW = 50.0; // Reduced from 60
+                                    const cardH = 69.0; // Reduced from 83 (maintains aspect ratio)
+                                   
+                                   return Align(
+                                     alignment: Alignment.topCenter,
+                                     child: Draggable<PlayingCardModel>(
+                                       data: context
+                                           .read<CardSimulatorCubit>()
+                                           .state
+                                           .library
+                                           .first,
+                                       dragAnchorStrategy: childDragAnchorStrategy,
+                                       feedback: SizedBox(
+                                         width: cardW,
+                                         height: cardH,
+                                         child: Material(
+                                           color: Colors.transparent,
+                                           child: CardWidget(
+                                             card: context
+                                                 .read<CardSimulatorCubit>()
+                                                 .state
+                                                 .library
+                                                 .first
+                                                 .copyWith(isFaceDown: false),
+                                             width: cardW,
+                                             height: cardH,
+                                             interactive: false,
+                                           ),
+                                         ),
+                                       ),
+                                                                                                                       childWhenDragging: const SizedBox.shrink(),
+                                        child: GestureDetector(
+                                         onTap: () => context
+                                             .read<CardSimulatorCubit>()
+                                             .draw(1),
+                                         child: Container(
+                                           width: cardW,
+                                           height: cardH,
+                                           decoration: BoxDecoration(
+                                             color: Colors.white,
+                                             border: Border.all(
+                                               color: Colors.black,
+                                               width: 4,
+                                             ),
+                                             borderRadius: BorderRadius.circular(6),
+                                           ),
+                                           alignment: Alignment.center,
+                                           child: Padding(
+                                             padding: EdgeInsets.all(4.0),
+                                             child: Text(
+                                               'CARD BACK\nNO IMAGE',
+                                               textAlign: TextAlign.center,
+                                               style: TextStyle(
+                                                 color: Colors.black,
+                                                 fontSize: (cardW * 0.15).clamp(8.0, 16.0), // Responsive font size
+                                               ),
+                                             ),
+                                           ),
+                                         ),
+                                       ),
+                                     ),
+                                   );
+                                 },
+                               ),
+                                                          // Removed count from bottom - now in title
                           ],
                         ),
                       )
@@ -902,7 +858,17 @@ class _LibrarySection extends StatelessWidget {
       ],
     ).then((value) {
       if (value != null) {
-        // TODO: Implement the actions
+        switch (value) {
+          case 'draw1':
+            context.read<CardSimulatorCubit>().draw(1);
+            break;
+          case 'draw7':
+            context.read<CardSimulatorCubit>().draw(7);
+            break;
+          case 'shuffle':
+            context.read<CardSimulatorCubit>().shuffleLibrary();
+            break;
+        }
       }
     });
   }
@@ -975,18 +941,24 @@ class _HandDropAreaState
 
         setState(() => placeholderIndex = null);
       },
-      builder: (context, candidate, rejected) {
-        final cards = widget.cards;
-        const cardW = 72.0;
-        const cardH = 100.0;
-        final children = <Widget>[];
+                           builder: (context, candidate, rejected) {
+          final cards = widget.cards;
+          // Use smaller fixed dimensions to match library and prevent overflow
+          const cardW = 50.0; // Reduced from 60 to match library
+          const cardH = 69.0; // Reduced from 83 to match library (maintains aspect ratio)
+          final children = <Widget>[];
 
         for (int i = 0; i <= cards.length; i++) {
+          // Show ghost card at the placeholder position when dragging over the hand zone
           if (placeholderIndex == i) {
             children.add(_ghost(cardW, cardH));
           }
           if (i < cards.length) {
             final c = cards[i];
+            // Skip rendering the card if it's currently being dragged (check if it's in candidate list)
+            if (candidate.isNotEmpty && candidate.first?.id == c.id) {
+              continue;
+            }
             children.add(
               Align(
                 alignment: Alignment.topCenter,
@@ -1016,16 +988,12 @@ class _HandDropAreaState
                           ),
                         ),
                       ),
-                      childWhenDragging:
-                          const SizedBox(
-                            width: cardW,
-                            height: cardH,
-                          ),
-                      child:
-                          BlocBuilder<
-                            CardSimulatorCubit,
-                            CardSimulatorState
-                          >(
+                                             childWhenDragging: const SizedBox.shrink(),
+                       child:
+                           BlocBuilder<
+                             CardSimulatorCubit,
+                             CardSimulatorState
+                           >(
                             builder: (context, state) {
                               final isSelected =
                                   state
@@ -1063,20 +1031,25 @@ class _HandDropAreaState
             crossAxisAlignment:
                 CrossAxisAlignment.start,
             children: [
-              Padding(
-                padding: const EdgeInsets.only(
-                  left: 12,
-                  top: 6, // Reduced from 8
-                  bottom: 4,
-                ),
-                child: Text(
-                  'Hand (${widget.cards.length})',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                  ),
-                ),
-              ),
+                             Padding(
+                 padding: const EdgeInsets.only(
+                   left: 12,
+                   top: 6, // Reduced from 8
+                   bottom: 4,
+                   right: 12,
+                 ),
+                 child: FittedBox(
+                   fit: BoxFit.scaleDown,
+                   alignment: Alignment.centerLeft,
+                   child: Text(
+                     'Hand (${widget.cards.length})',
+                     style: const TextStyle(
+                       color: Colors.white,
+                       fontSize: 16,
+                     ),
+                   ),
+                 ),
+               ),
               Expanded(
                 child: Column(
                   children: [
@@ -1131,9 +1104,9 @@ class _HandDropAreaState
                                   const Radius.circular(
                                     3,
                                   ),
-                              child: SizedBox(
-                                height:
-                                    112, // cardH (100) + vertical padding (6*2)
+                                                             child: SizedBox(
+                                 height:
+                                     81, // cardH (69) + vertical padding (6*2)
                                 child: ListView(
                                   controller:
                                       _scrollController,
@@ -1177,7 +1150,7 @@ class _HandDropAreaState
     final local = box.globalToLocal(
       globalPosition,
     );
-    const cardW = 72.0;
+         const cardW = 50.0; // Updated to match new card width
     const spacing = 4.0;
     final x =
         local.dx -

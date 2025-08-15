@@ -19,7 +19,7 @@ class PlatformDeckRepository
           await _loadFromSharedPrefs();
       decks.addAll(savedDecks);
     } catch (e) {
-      print('Failed to load saved decks: $e');
+      // Failed to load saved decks
     }
 
     return decks;
@@ -45,7 +45,6 @@ class PlatformDeckRepository
     DeckModel deck,
   ) async {
     // This would normally save to SharedPreferences
-    // For now, just print for debugging
-    print('Would save deck: ${deck.name}');
+    // For now, just a placeholder
   }
 }
