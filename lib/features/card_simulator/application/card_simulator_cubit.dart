@@ -26,125 +26,7 @@ class CardSimulatorCubit
   final DeckRepository _deckRepository;
 
   void initialize() {
-    // Create a default deck on initialization
-    _createDefaultDeckAsync();
-  }
-
-  void _createDefaultDeckAsync() {
-    _createDefaultDeck();
-  }
-
-  void _createDefaultDeck() async {
-    // Try to create a deck from temp/testdeck folder first (for desktop)
-    if (await _createDeckFromTempFolder()) {
-      return;
-    }
-
-    // Fallback to placeholder cards with better image URLs
-    final cardNames = [
-      'Mountain',
-      'Lightning Bolt',
-      'Fireball',
-      'Goblin',
-      'Dragon',
-      'Sword',
-      'Shield',
-      'Potion',
-      'Scroll',
-      'Gem',
-      'Crystal',
-      'Ring',
-      'Amulet',
-      'Staff',
-      'Wand',
-    ];
-
-    final library = cardNames
-        .map(
-          (name) => PlayingCardModel(
-            id: _uuid.v4(),
-            name: name,
-            imageUrl: _getRandomCardImage(name),
-            zone: Zone.library,
-            isFaceDown: true,
-            originZone: Zone.library,
-          ),
-        )
-        .toList();
-
-    library.shuffle();
-
-    emit(
-      state.copyWith(
-        library: library,
-        currentDeckName: 'Default Deck',
-      ),
-    );
-  }
-
-  String _getRandomCardImage(String cardName) {
-    // Use different image services for variety and reliability
-    final random =
-        DateTime.now().millisecondsSinceEpoch % 3;
-    switch (random) {
-      case 0:
-        return 'https://picsum.photos/300/420?random=${cardName.hashCode}';
-      case 1:
-        return 'https://source.unsplash.com/300x420/?card,${cardName.toLowerCase().replaceAll(' ', '')}';
-      case 2:
-        return 'https://via.placeholder.com/300x420/2a2a2a/ffffff?text=${Uri.encodeComponent(cardName)}';
-      default:
-        return 'https://picsum.photos/300/420?random=${cardName.hashCode}';
-    }
-  }
-
-  Future<bool> _createDeckFromTempFolder() async {
-    try {
-      final tempDir = Directory('temp/testdeck');
-      if (!await tempDir.exists()) return false;
-
-      final files = await tempDir
-          .list()
-          .where((e) => e is File)
-          .where(
-            (e) => e.path.toLowerCase().endsWith(
-              '.png',
-            ),
-          )
-          .take(20) // Limit to 20 cards
-          .toList();
-
-      if (files.isEmpty) return false;
-
-      final library = files
-          .map(
-            (file) => PlayingCardModel(
-              id: _uuid.v4(),
-              name: _fileName(file.path),
-              imageUrl: file.uri.toString(),
-              zone: Zone.library,
-              isFaceDown: true,
-              originZone: Zone.library,
-            ),
-          )
-          .toList();
-
-      library.shuffle();
-
-      emit(
-        state.copyWith(
-          library: library,
-          currentDeckName: 'Test Deck',
-        ),
-      );
-
-      return true;
-    } catch (e) {
-      print(
-        'Failed to create deck from temp folder: $e',
-      );
-      return false;
-    }
+    // No default deck - user must load their own deck
   }
 
   void reset() =>
@@ -262,29 +144,14 @@ class CardSimulatorCubit
 
   void draw(int count) {
     if (state.library.isEmpty) return;
+
+    // Move cards from library to hand using the consolidated moveCard method
     final drawn = state.library
         .take(count)
         .toList();
-    final remaining = state.library
-        .skip(count)
-        .toList();
-    final updated = [
-      ...state.hand,
-      ...drawn.map(
-        (c) => c.copyWith(
-          zone: Zone.hand,
-          isFaceDown: false,
-          isTapped:
-              false, // Reset orientation when leaving library
-        ),
-      ),
-    ];
-    emit(
-      state.copyWith(
-        hand: updated,
-        library: remaining,
-      ),
-    );
+    for (final card in drawn) {
+      moveCard(card.id, Zone.hand);
+    }
   }
 
   // Deck loading
@@ -385,7 +252,7 @@ class CardSimulatorCubit
         );
       }
     } catch (e) {
-      // If import fails, show an error and create default deck
+      // If import fails, show an error
       print('Failed to import deck: $e');
       if (context.mounted) {
         ScaffoldMessenger.of(
@@ -399,7 +266,7 @@ class CardSimulatorCubit
           ),
         );
       }
-      _createDefaultDeck();
+      // No default deck - user must load their own deck
     }
   }
 
@@ -416,12 +283,10 @@ class CardSimulatorCubit
         'Requesting comprehensive storage permissions...',
       );
 
-      // Request all relevant permissions
+      // Request only necessary storage permissions
       final permissions = [
         Permission.storage,
         Permission.manageExternalStorage,
-        Permission.photos,
-        Permission.videos,
       ];
 
       Map<Permission, PermissionStatus> statuses =
@@ -455,9 +320,6 @@ class CardSimulatorCubit
               true ||
           statuses[Permission
                       .manageExternalStorage]
-                  ?.isGranted ==
-              true ||
-          statuses[Permission.photos]
                   ?.isGranted ==
               true;
 
@@ -612,12 +474,10 @@ class CardSimulatorCubit
         'Attempting directory scan with permissions: $dirPath',
       );
 
-      // Check all relevant permissions
+      // Check only necessary storage permissions
       final permissions = [
         Permission.storage,
         Permission.manageExternalStorage,
-        Permission.photos,
-        Permission.videos,
       ];
 
       Map<Permission, PermissionStatus> statuses =
@@ -1177,13 +1037,8 @@ class CardSimulatorCubit
           .loadSavedDecks();
     } catch (e) {
       print('Failed to load saved decks: $e');
-      // Return a default deck if loading fails
-      return [
-        DeckModel(
-          name: 'Default Deck',
-          imagePaths: [],
-        ),
-      ];
+      // Return empty list if loading fails - no default deck
+      return [];
     }
   }
 
@@ -1197,9 +1052,8 @@ class CardSimulatorCubit
       );
       _loadDeck(deck);
     } catch (e) {
-      // If loading fails, create a default deck
+      // If loading fails, show error but don't create default deck
       print('Failed to load deck "$name": $e');
-      _createDefaultDeck();
     }
   }
 
@@ -1262,7 +1116,13 @@ class CardSimulatorCubit
     String id,
     Zone target, {
     Offset? position,
+    int? insertIndex, // For hand insertion
   }) {
+    // Clear selection before moving any card
+    if (state.selectedCardId != null) {
+      clearSelection();
+    }
+
     // Create copies to avoid mutating lists that the UI may be iterating over
     final battlefield =
         List<PlayingCardModel>.from(
@@ -1324,69 +1184,119 @@ class CardSimulatorCubit
       );
       fromZone = Zone.command;
     }
-    // Remove from the source zone
-    switch (fromZone) {
-      case Zone.battlefield:
-        battlefield.removeWhere(
-          (c) => c.id == id,
-        );
-        break;
-      case Zone.hand:
-        hand.removeWhere((c) => c.id == id);
-        break;
-      case Zone.library:
-        library.removeWhere((c) => c.id == id);
-        break;
-      case Zone.graveyard:
-        graveyard.removeWhere((c) => c.id == id);
-        break;
-      case Zone.exile:
-        exile.removeWhere((c) => c.id == id);
-        break;
-      case Zone.command:
-        command.removeWhere((c) => c.id == id);
-        break;
-      case null:
-        break;
-    }
 
-    if (card == null) return;
-    final source = card;
-    final moved = target == Zone.library
-        ? source.copyWith(
-            zone: target,
-            position: null,
-            isFaceDown: true,
-            isTapped:
-                false, // Force portrait orientation
-          )
-        : source.copyWith(
-            zone: target,
-            position: position,
-            isFaceDown: false,
-            isTapped:
-                false, // Force portrait orientation
+    // Handle same-zone reordering (e.g., hand to hand)
+    if (fromZone == target) {
+      switch (target) {
+        case Zone.hand:
+          final currentIndex = hand.indexWhere(
+            (c) => c.id == id,
           );
+          if (currentIndex == -1) return;
+          final cardToMove = hand.removeAt(
+            currentIndex,
+          );
+          final index =
+              insertIndex ?? hand.length;
+          final safeIndex = index.clamp(
+            0,
+            hand.length,
+          );
+          hand.insert(safeIndex, cardToMove);
+          break;
+        case Zone.battlefield:
+          // For battlefield, we might want to update position
+          if (position != null) {
+            final cardIndex = battlefield
+                .indexWhere((c) => c.id == id);
+            if (cardIndex != -1) {
+              battlefield[cardIndex] =
+                  battlefield[cardIndex].copyWith(
+                    position: position,
+                  );
+            }
+          }
+          break;
+        default:
+          // For other zones, same-zone reordering doesn't make sense
+          return;
+      }
+    } else {
+      // Handle cross-zone movement
+      // Remove from the source zone
+      switch (fromZone) {
+        case Zone.battlefield:
+          battlefield.removeWhere(
+            (c) => c.id == id,
+          );
+          break;
+        case Zone.hand:
+          hand.removeWhere((c) => c.id == id);
+          break;
+        case Zone.library:
+          library.removeWhere((c) => c.id == id);
+          break;
+        case Zone.graveyard:
+          graveyard.removeWhere(
+            (c) => c.id == id,
+          );
+          break;
+        case Zone.exile:
+          exile.removeWhere((c) => c.id == id);
+          break;
+        case Zone.command:
+          command.removeWhere((c) => c.id == id);
+          break;
+        case null:
+          break;
+      }
 
-    switch (target) {
-      case Zone.battlefield:
-        battlefield.add(moved);
-        break;
-      case Zone.hand:
-        hand.add(moved);
-        break;
-      case Zone.library:
-        library.insert(0, moved);
-        break;
-      case Zone.graveyard:
-        graveyard.add(moved);
-        break;
-      case Zone.exile:
-        exile.add(moved);
-        break;
-      case Zone.command:
-        command.add(moved);
-        break;
+      if (card == null) return;
+      final source = card;
+      final moved = target == Zone.library
+          ? source.copyWith(
+              zone: target,
+              position: null,
+              isFaceDown: true,
+              isTapped:
+                  false, // Force portrait orientation
+            )
+          : source.copyWith(
+              zone: target,
+              position: position,
+              isFaceDown: false,
+              isTapped:
+                  false, // Force portrait orientation
+            );
+
+      // Handle zone-specific insertion logic
+      switch (target) {
+        case Zone.battlefield:
+          battlefield.add(moved);
+          break;
+        case Zone.hand:
+          // Use insertIndex if provided, otherwise add to end
+          final index =
+              insertIndex ?? hand.length;
+          final safeIndex = index.clamp(
+            0,
+            hand.length,
+          );
+          hand.insert(safeIndex, moved);
+          break;
+        case Zone.library:
+          library.insert(0, moved);
+          break;
+        case Zone.graveyard:
+          graveyard.add(moved);
+          break;
+        case Zone.exile:
+          exile.add(moved);
+          break;
+        case Zone.command:
+          command.add(moved);
+          break;
+      }
     }
 
     emit(
@@ -1440,6 +1350,11 @@ class CardSimulatorCubit
   }
 
   void deleteCard(String id) {
+    // Clear selection before deleting any card
+    if (state.selectedCardId != null) {
+      clearSelection();
+    }
+
     final allZones = {
       Zone.battlefield: state.battlefield
           .where((c) => c.id != id)
@@ -1470,71 +1385,6 @@ class CardSimulatorCubit
         command: allZones[Zone.command]!,
       ),
     );
-  }
-
-  // Insert or reorder in hand with placeholder behavior
-  void insertIntoHand(String id, int index) {
-    final all = _allCards();
-    final card = all.firstWhere(
-      (c) => c.id == id,
-    );
-    // Remove from whichever zone it is currently in and rebuild lists immutably
-    final battlefield =
-        List<PlayingCardModel>.from(
-          state.battlefield,
-        )..removeWhere((c) => c.id == id);
-    final hand = List<PlayingCardModel>.from(
-      state.hand,
-    )..removeWhere((c) => c.id == id);
-    final library = List<PlayingCardModel>.from(
-      state.library,
-    )..removeWhere((c) => c.id == id);
-    final graveyard = List<PlayingCardModel>.from(
-      state.graveyard,
-    )..removeWhere((c) => c.id == id);
-    final exile = List<PlayingCardModel>.from(
-      state.exile,
-    )..removeWhere((c) => c.id == id);
-    final command = List<PlayingCardModel>.from(
-      state.command,
-    )..removeWhere((c) => c.id == id);
-
-    final moved = card.copyWith(
-      zone: Zone.hand,
-      isFaceDown: false,
-      position: null,
-      isTapped:
-          false, // Force portrait orientation
-    );
-    final safeIndex = index.clamp(0, hand.length);
-    hand.insert(safeIndex, moved);
-    emit(
-      state.copyWith(
-        battlefield: battlefield,
-        hand: hand,
-        library: library,
-        graveyard: graveyard,
-        exile: exile,
-        command: command,
-      ),
-    );
-  }
-
-  void reorderHand(String id, int newIndex) {
-    final hand = List<PlayingCardModel>.of(
-      state.hand,
-    );
-    final currentIndex = hand.indexWhere(
-      (c) => c.id == id,
-    );
-    if (currentIndex == -1) return;
-    final card = hand.removeAt(currentIndex);
-    final safeIndex = newIndex.clamp(
-      0,
-      hand.length,
-    );
-    hand.insert(safeIndex, card);
-    emit(state.copyWith(hand: hand));
   }
 
   // Helpers
@@ -1571,8 +1421,19 @@ class CardSimulatorCubit
 
   // Card selection methods
   void selectCard(String? cardId) {
+    print(
+      'Cubit selectCard called with cardId: $cardId',
+    );
+    print(
+      'Current selectedCardId: ${state.selectedCardId}',
+    );
+
     final newState = state.copyWith(
       selectedCardId: cardId,
+    );
+
+    print(
+      'New selectedCardId will be: ${newState.selectedCardId}',
     );
     emit(newState);
   }

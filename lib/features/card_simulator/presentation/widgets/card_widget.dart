@@ -5,6 +5,89 @@ import '../../application/card_simulator_state.dart';
 import '../../domain/entities/playing_card_model.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+/// Helper class to manage zone menu options
+class ZoneMenuHelper {
+  /// Returns a list of menu items for zones, excluding the current zone
+  static List<PopupMenuItem<String>>
+  getZoneMenuItems(Zone currentZone) {
+    final allZones = Zone.values;
+    final availableZones = allZones
+        .where((zone) => zone != currentZone)
+        .toList();
+
+    return availableZones
+        .map(
+          (zone) => PopupMenuItem<String>(
+            value: zone.name,
+            child: Text(
+              'Move to ${_getZoneDisplayName(zone)}',
+              style: const TextStyle(
+                color: Colors.white,
+              ),
+            ),
+          ),
+        )
+        .toList();
+  }
+
+  /// Converts zone enum to display name
+  static String _getZoneDisplayName(Zone zone) {
+    switch (zone) {
+      case Zone.battlefield:
+        return 'Battlefield';
+      case Zone.hand:
+        return 'Hand';
+      case Zone.library:
+        return 'Library';
+      case Zone.graveyard:
+        return 'Graveyard';
+      case Zone.exile:
+        return 'Exile';
+      case Zone.command:
+        return 'Command';
+    }
+  }
+
+  /// Handles the menu action for moving a card to a zone
+  static void handleZoneMove(
+    BuildContext context,
+    String zoneName,
+    String cardId,
+  ) {
+    final cubit = context
+        .read<CardSimulatorCubit>();
+    final zone = Zone.values.firstWhere(
+      (z) => z.name == zoneName,
+    );
+
+    switch (zone) {
+      case Zone.battlefield:
+        // For battlefield, we need to provide a position
+        cubit.moveCard(
+          cardId,
+          zone,
+          position: const Offset(100, 100),
+        );
+        break;
+      case Zone.hand:
+        cubit.moveCard(cardId, zone);
+        break;
+      case Zone.library:
+        cubit.moveCard(cardId, zone);
+        break;
+      case Zone.graveyard:
+        cubit.moveCard(cardId, zone);
+        break;
+      case Zone.exile:
+        cubit.moveCard(cardId, zone);
+        break;
+      case Zone.command:
+        cubit.moveCard(cardId, zone);
+        break;
+    }
+  }
+}
+
 class CardWidget extends StatelessWidget {
   final PlayingCardModel card;
   final double width;
@@ -24,6 +107,10 @@ class CardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print(
+      'CardWidget building for card: ${card.id}, isSelected: $isSelected',
+    );
+
     final showBack =
         card.zone == Zone.library &&
         card.isFaceDown;
@@ -99,23 +186,42 @@ class CardWidget extends StatelessWidget {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () {
-        if (!interactive) return;
+        print(
+          'CardWidget onTap called for card: ${card.id} in zone: ${card.zone}',
+        );
+        print(
+          'Interactive: $interactive, isSelected: $isSelected',
+        );
+
+        if (!interactive) {
+          print(
+            'Card is not interactive, returning',
+          );
+          return;
+        }
+
         if (card.zone == Zone.library &&
             showBack) {
+          print(
+            'Library card tapped, drawing card',
+          );
           context.read<CardSimulatorCubit>().draw(
             1,
           );
           return;
         }
-        // Handle card selection (except for library zone)
-        if (card.zone != Zone.library) {
-          final cubit = context
-              .read<CardSimulatorCubit>();
-          if (isSelected) {
-            cubit.clearSelection();
-          } else {
-            cubit.selectCard(card.id);
-          }
+
+        // Handle card selection for all zones
+        final cubit = context
+            .read<CardSimulatorCubit>();
+        if (isSelected) {
+          print(
+            'Clearing selection for card: ${card.id}',
+          );
+          cubit.clearSelection();
+        } else {
+          print('Selecting card: ${card.id}');
+          cubit.selectCard(card.id);
         }
       },
       onLongPress: () async {
@@ -167,8 +273,7 @@ class CardWidget extends StatelessWidget {
         );
       },
       onDoubleTap: () {
-        if (interactive &&
-            card.zone != Zone.hand) {
+        if (interactive) {
           context
               .read<CardSimulatorCubit>()
               .toggleTapped(card.id);
@@ -257,36 +362,25 @@ class CardWidget extends StatelessWidget {
           overlay.size.height - offsetPosition.dy,
         );
 
+    // Get dynamic menu items based on current zone
+    final menuItems =
+        ZoneMenuHelper.getZoneMenuItems(
+          card.zone,
+        );
+
     showMenu<String>(
       context: context,
       position: position,
       color: Colors.grey.shade800,
-      items: const [
-        PopupMenuItem<String>(
-          value: 'battlefield',
-          child: Text(
-            'Move to Battlefield',
-            style: TextStyle(color: Colors.white),
-          ),
-        ),
-        PopupMenuItem<String>(
-          value: 'hand',
-          child: Text(
-            'Move to Hand',
-            style: TextStyle(color: Colors.white),
-          ),
-        ),
-        PopupMenuItem<String>(
-          value: 'library',
-          child: Text(
-            'Move to Library',
-            style: TextStyle(color: Colors.white),
-          ),
-        ),
-      ],
+      items: menuItems,
     ).then((value) {
       if (value != null) {
-        // TODO: Implement the move actions
+        // Handle the zone move action
+        ZoneMenuHelper.handleZoneMove(
+          context,
+          value,
+          card.id,
+        );
       } else {
         // Menu was dismissed (tapped outside), clear the selection
         cubit.clearSelection();

@@ -145,59 +145,70 @@ class _ZoneList extends StatelessWidget {
           radius: const Radius.circular(10),
           child: SizedBox(
             height: 130,
-            child: Row(
-              children: [
-                const SizedBox(width: 8),
-                if (cards.isNotEmpty)
-                  CardWidget(
-                    card: cards.first.copyWith(
-                      isFaceDown: false,
-                    ),
-                    width: 72,
-                    height: 100,
-                    interactive: false,
-                  ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: ListView.separated(
-                    scrollDirection:
-                        Axis.horizontal,
-                    itemBuilder:
-                        (context, index) {
-                          final c = cards[index];
-                          return Draggable<
-                            PlayingCardModel
-                          >(
-                            data: c,
-                            feedback: Material(
-                              color: Colors
-                                  .transparent,
-                              child: CardWidget(
-                                card: c,
-                                width: 72,
-                                height: 100,
-                                interactive:
-                                    false,
-                              ),
-                            ),
-                            childWhenDragging:
-                                const SizedBox(
-                                  width: 72,
-                                  height: 100,
-                                ),
+            child: Padding(
+              padding: const EdgeInsets.all(8),
+              child: cards.isNotEmpty
+                  ? Align(
+                      alignment:
+                          Alignment.topCenter,
+                      child: Draggable<PlayingCardModel>(
+                        data: cards.first,
+                        dragAnchorStrategy:
+                            childDragAnchorStrategy,
+                        hitTestBehavior:
+                            HitTestBehavior
+                                .translucent,
+                        feedback: SizedBox(
+                          width: 72,
+                          height: 100,
+                          child: Material(
+                            color: Colors
+                                .transparent,
                             child: CardWidget(
-                              card: c,
+                              card: cards.first
+                                  .copyWith(
+                                    isFaceDown:
+                                        false,
+                                  ),
+                              width: 72,
+                              height: 100,
+                              interactive: false,
+                            ),
+                          ),
+                        ),
+                        childWhenDragging:
+                            const SizedBox(
                               width: 72,
                               height: 100,
                             ),
-                          );
-                        },
-                    separatorBuilder: (_, __) =>
-                        const SizedBox(width: 6),
-                    itemCount: cards.length,
-                  ),
-                ),
-              ],
+                        child: Stack(
+                          children: [
+                            CardWidget(
+                              card: cards.first
+                                  .copyWith(
+                                    isFaceDown:
+                                        false,
+                                  ),
+                              width: 72,
+                              height: 100,
+                              interactive: true,
+                              isSelected:
+                                  context
+                                      .read<
+                                        CardSimulatorCubit
+                                      >()
+                                      .state
+                                      .selectedCardId ==
+                                  cards.first.id,
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  : const SizedBox(
+                      width: double.infinity,
+                      height: double.infinity,
+                    ),
             ),
           ),
         ),

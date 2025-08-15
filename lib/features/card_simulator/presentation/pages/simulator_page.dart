@@ -597,103 +597,110 @@ class _LibrarySection extends StatelessWidget {
                               vertical: 6,
                             ),
                         child: Column(
-                          mainAxisSize: MainAxisSize.min,
+                          mainAxisSize:
+                              MainAxisSize.min,
                           children: [
                             Align(
-                              alignment:
-                                  Alignment.topCenter,
+                              alignment: Alignment
+                                  .topCenter,
                               child: Draggable<PlayingCardModel>(
-                            data: context
-                                .read<
-                                  CardSimulatorCubit
-                                >()
-                                .state
-                                .library
-                                .first,
-                            dragAnchorStrategy:
-                                childDragAnchorStrategy,
-                            feedback: SizedBox(
-                              width: 72,
-                              height: 100,
-                              child: Material(
-                                color: Colors
-                                    .transparent,
-                                child: CardWidget(
-                                  card: context
+                                data: context
+                                    .read<
+                                      CardSimulatorCubit
+                                    >()
+                                    .state
+                                    .library
+                                    .first,
+                                dragAnchorStrategy:
+                                    childDragAnchorStrategy,
+                                feedback: SizedBox(
+                                  width: 72,
+                                  height: 100,
+                                  child: Material(
+                                    color: Colors
+                                        .transparent,
+                                    child: CardWidget(
+                                      card: context
+                                          .read<
+                                            CardSimulatorCubit
+                                          >()
+                                          .state
+                                          .library
+                                          .first
+                                          .copyWith(
+                                            isFaceDown:
+                                                false,
+                                          ),
+                                      width: 72,
+                                      height: 100,
+                                      interactive:
+                                          false,
+                                    ),
+                                  ),
+                                ),
+                                childWhenDragging:
+                                    const SizedBox(
+                                      width: 72,
+                                      height: 100,
+                                    ),
+                                child: GestureDetector(
+                                  onTap: () => context
                                       .read<
                                         CardSimulatorCubit
                                       >()
-                                      .state
-                                      .library
-                                      .first
-                                      .copyWith(
-                                        isFaceDown:
-                                            false,
-                                      ),
-                                  width: 72,
-                                  height: 100,
-                                  interactive:
-                                      false,
-                                ),
-                              ),
-                            ),
-                            childWhenDragging:
-                                const SizedBox(
-                                  width: 72,
-                                  height: 100,
-                                ),
-                            child: GestureDetector(
-                              onTap: () => context
-                                  .read<
-                                    CardSimulatorCubit
-                                  >()
-                                  .draw(1),
-                              child: Container(
-                                width: 72,
-                                height: 100,
-                                decoration: BoxDecoration(
-                                  color: Colors
-                                      .white,
-                                  border: Border.all(
-                                    color: Colors
-                                        .black,
-                                    width: 4,
-                                  ),
-                                  borderRadius:
-                                      BorderRadius.circular(
-                                        6,
-                                      ),
-                                ),
-                                alignment:
-                                    Alignment
-                                        .center,
-                                child: const Padding(
-                                  padding:
-                                      EdgeInsets.all(
-                                        4.0,
-                                      ),
-                                  child: Text(
-                                    'CARD BACK\nNO IMAGE',
-                                    textAlign:
-                                        TextAlign
-                                            .center,
-                                    style: TextStyle(
+                                      .draw(1),
+                                  child: Container(
+                                    width: 72,
+                                    height: 100,
+                                    decoration: BoxDecoration(
                                       color: Colors
-                                          .black,
-                                      fontSize:
-                                          12,
+                                          .white,
+                                      border: Border.all(
+                                        color: Colors
+                                            .black,
+                                        width: 4,
+                                      ),
+                                      borderRadius:
+                                          BorderRadius.circular(
+                                            6,
+                                          ),
+                                    ),
+                                    alignment:
+                                        Alignment
+                                            .center,
+                                    child: const Padding(
+                                      padding:
+                                          EdgeInsets.all(
+                                            4.0,
+                                          ),
+                                      child: Text(
+                                        'CARD BACK\nNO IMAGE',
+                                        textAlign:
+                                            TextAlign
+                                                .center,
+                                        style: TextStyle(
+                                          color: Colors
+                                              .black,
+                                          fontSize:
+                                              12,
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 4),
+                            const SizedBox(
+                              height: 4,
+                            ),
                             Text(
                               '($count)',
-                              style: const TextStyle(
-                                color: Colors.white70,
-                                fontSize: 12,
-                              ),
+                              style:
+                                  const TextStyle(
+                                    color: Colors
+                                        .white70,
+                                    fontSize: 12,
+                                  ),
                             ),
                           ],
                         ),
@@ -835,9 +842,16 @@ class _HandDropAreaState
               d.offset,
             ) ??
             widget.cards.length;
+
+        // moveCard now handles both internal reordering and external drops
         context
             .read<CardSimulatorCubit>()
-            .insertIntoHand(d.data.id, index);
+            .moveCard(
+              d.data.id,
+              Zone.hand,
+              insertIndex: index,
+            );
+
         setState(() => placeholderIndex = null);
       },
       builder: (context, candidate, rejected) {
