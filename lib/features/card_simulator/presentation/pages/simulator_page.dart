@@ -702,91 +702,83 @@ class _LibrarySection extends StatelessWidget {
                ),
               Expanded(
                 child: count > 0
-                    ? Padding(
-                                                 padding:
-                             const EdgeInsets.symmetric(
-                               horizontal: 8,
-                               vertical: 4, // Reduced from 6
-                             ),
-                                                 child: Column(
-                           mainAxisSize:
-                               MainAxisSize.min,
-                           children: [
-                                                                                                                     LayoutBuilder(
-                                  builder: (context, constraints) {
-                                                                      // Calculate card size based on actual zone height
-                                     final cardSize = KSize.calculateZoneCardSize(
-                                       zoneHeight: constraints.maxHeight,
-                                       scaleFactor: 0.85, // Use more of the available space
-                                     );
-                                     final cardW = cardSize.width;
-                                     final cardH = cardSize.height;
-                                    
-                                                                                                                                                   return Container(
-                                            width: cardW,
-                                            height: cardH,
-                                            child: Draggable<PlayingCardModel>(
-                                         data: context
-                                             .read<CardSimulatorCubit>()
-                                             .state
-                                             .library
-                                             .first,
-                                         dragAnchorStrategy: childDragAnchorStrategy,
-                                         feedback: SizedBox(
-                                           width: cardW,
-                                           height: cardH,
-                                           child: Material(
-                                             color: Colors.transparent,
-                                             child: CardWidget(
-                                               card: context
-                                                   .read<CardSimulatorCubit>()
-                                                   .state
-                                                   .library
-                                                   .first
-                                                   .copyWith(isFaceDown: false),
-                                               width: cardW,
-                                               height: cardH,
-                                               interactive: false,
-                                             ),
-                                           ),
-                                         ),
-                                         childWhenDragging: const SizedBox.shrink(),
-                                         child: GestureDetector(
-                                           onTap: () => context
-                                               .read<CardSimulatorCubit>()
-                                               .draw(1),
-                                           child: Container(
-                                             width: cardW,
-                                             height: cardH,
-                                             decoration: BoxDecoration(
-                                               color: Colors.white,
-                                               border: Border.all(
-                                                 color: Colors.black,
-                                                 width: 4,
-                                               ),
-                                               borderRadius: BorderRadius.circular(6),
-                                             ),
-                                             alignment: Alignment.center,
-                                             child: Padding(
-                                               padding: EdgeInsets.all(4.0),
-                                               child: Text(
-                                                 'CARD BACK\nNO IMAGE',
-                                                 textAlign: TextAlign.center,
-                                                 style: TextStyle(
-                                                   color: Colors.black,
-                                                   fontSize: (cardW * 0.15).clamp(8.0, 16.0), // Responsive font size
-                                                 ),
-                                               ),
-                                             ),
-                                           ),
-                                         ),
-                                       ),
-                                     );
-                                 },
-                               ),
-                                                          // Removed count from bottom - now in title
-                          ],
-                        ),
+                    ? LayoutBuilder(
+                        builder: (context, constraints) {
+                          // Calculate card size based on actual zone height
+                          final cardSize = KSize.calculateZoneCardSize(
+                            zoneHeight: constraints.maxHeight,
+                            scaleFactor: 0.85, // Use more of the available space
+                          );
+                          final cardW = cardSize.width;
+                          final cardH = cardSize.height;
+                          
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4, // Reduced from 6
+                            ),
+                            child: SizedBox(
+                              width: cardW,
+                              height: cardH,
+                              child: Draggable<PlayingCardModel>(
+                                data: context
+                                    .read<CardSimulatorCubit>()
+                                    .state
+                                    .library
+                                    .first,
+                                dragAnchorStrategy: childDragAnchorStrategy,
+                                feedback: SizedBox(
+                                  width: cardW,
+                                  height: cardH,
+                                  child: Material(
+                                    color: Colors.transparent,
+                                    child: CardWidget(
+                                      card: context
+                                          .read<CardSimulatorCubit>()
+                                          .state
+                                          .library
+                                          .first
+                                          .copyWith(isFaceDown: false),
+                                      width: cardW,
+                                      height: cardH,
+                                      interactive: false,
+                                    ),
+                                  ),
+                                ),
+                                childWhenDragging: const SizedBox.shrink(),
+                                child: GestureDetector(
+                                  onTap: () => context
+                                      .read<CardSimulatorCubit>()
+                                      .draw(1),
+                                  child: Container(
+                                    width: cardW,
+                                    height: cardH,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      border: Border.all(
+                                        color: Colors.black,
+                                        width: 4,
+                                      ),
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    alignment: Alignment.center,
+                                    child: Padding(
+                                      padding: EdgeInsets.all(4.0),
+                                      child: Text(
+                                        'CARD BACK\nNO IMAGE',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: (cardW * 0.15).clamp(8.0, 16.0), // Responsive font size
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
                       )
                     : const SizedBox.shrink(),
               ),
@@ -1021,9 +1013,8 @@ class _HandDropAreaState extends State<_HandDropArea> {
           }
         }
 
-                             return Container(
+                             return SizedBox(
                                height: cardH,
-                               margin: const EdgeInsets.symmetric(horizontal: 4),
                                child: ListView(
                                  controller: _scrollController,
                                  padding: const EdgeInsets.symmetric(

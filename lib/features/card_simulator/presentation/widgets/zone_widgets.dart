@@ -208,35 +208,38 @@ class _ZoneDropAreaState extends State<_ZoneDropArea> {
                       }
                     }
 
-                    return Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 4),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(6),
-                        child: Theme(
-                          data: Theme.of(context).copyWith(
-                            scrollbarTheme: ScrollbarThemeData(
-                              thumbColor: WidgetStateProperty.all(Colors.grey.shade300),
-                              trackColor: WidgetStateProperty.all(Colors.grey.shade600),
-                              trackBorderColor: WidgetStateProperty.all(Colors.transparent),
-                            ),
-                          ),
-                          child: Scrollbar(
-                            controller: _scrollController,
-                            thumbVisibility: true,
-                            trackVisibility: true,
-                            thickness: 6,
-                            radius: const Radius.circular(3),
-                            child: ListView(
-                              controller: _scrollController,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 6,
+                    return SizedBox(
+                      height: cardH,
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 4),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(6),
+                          child: Theme(
+                            data: Theme.of(context).copyWith(
+                              scrollbarTheme: ScrollbarThemeData(
+                                thumbColor: WidgetStateProperty.all(Colors.grey.shade300),
+                                trackColor: WidgetStateProperty.all(Colors.grey.shade600),
+                                trackBorderColor: WidgetStateProperty.all(Colors.transparent),
                               ),
-                              scrollDirection: Axis.horizontal,
-                              children: children,
+                            ),
+                            child: Scrollbar(
+                              controller: _scrollController,
+                              thumbVisibility: true,
+                              trackVisibility: true,
+                              thickness: 6,
+                              radius: const Radius.circular(3),
+                              child: ListView(
+                                controller: _scrollController,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 6,
+                                ),
+                                scrollDirection: Axis.horizontal,
+                                children: children,
+                              ),
                             ),
                           ),
                         ),
