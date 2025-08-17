@@ -12,6 +12,7 @@ import 'card_simulator_state.dart';
 import '../domain/entities/deck_model.dart';
 import '../domain/repositories/deck_repository.dart';
 import '../infrastructure/repositories/shared_prefs_deck_repository.dart';
+import '../../../../core/constants/k_sizes.dart';
 
 class CardSimulatorCubit
     extends Cubit<CardSimulatorState> {
@@ -1282,5 +1283,21 @@ class CardSimulatorCubit
   void decreaseBattlefieldCardSize() {
     final newSize = (state.battlefieldCardSize * 0.9).clamp(50.0, 200.0);
     emit(state.copyWith(battlefieldCardSize: newSize));
+  }
+
+  // Library zone width management
+  void setLibraryZoneWidth(double width) {
+    emit(state.copyWith(libraryZoneWidth: width));
+  }
+
+  // Calculate and update library zone width based on card size
+  void updateLibraryZoneWidth(double zoneHeight) {
+    final cardSize = KSize.calculateZoneCardSize(
+      zoneHeight: zoneHeight,
+      scaleFactor: 0.85,
+    );
+    // Add some padding for the card + margins
+    final newWidth = cardSize.width + 32.0; // 16px padding on each side
+    setLibraryZoneWidth(newWidth);
   }
 }

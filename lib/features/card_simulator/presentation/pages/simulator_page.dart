@@ -231,9 +231,8 @@ class _SimulatorPageState
                                 crossAxisAlignment:
                                     CrossAxisAlignment
                                         .start,
-                                children: [
-                                                                     Expanded(
-                                     flex: 7, // Hand zone gets 7/10 of the space
+                                                                 children: [
+                                                                      Expanded(
                                      child: GestureDetector(
                                        onTap: () => context
                                            .read<
@@ -249,14 +248,14 @@ class _SimulatorPageState
                                    const SizedBox(
                                      width: 8,
                                    ),
-                                   Expanded(
-                                     flex: 3, // Library zone gets 3/10 of the space
-                                     child: _LibrarySection(
-                                       count: state
-                                           .library
-                                           .length,
-                                     ),
-                                   ),
+                                                                       SizedBox(
+                                      width: state.libraryZoneWidth,
+                                      child: _LibrarySection(
+                                        count: state
+                                            .library
+                                            .length,
+                                      ),
+                                    ),
                                 ],
                               ),
                       ),
@@ -711,6 +710,16 @@ class _LibrarySection extends StatelessWidget {
                           );
                           final cardW = cardSize.width;
                           final cardH = cardSize.height;
+                          
+                          // Update library zone width based on calculated card width
+                          // This avoids circular dependency by updating after calculation
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            final cubit = context.read<CardSimulatorCubit>();
+                            final newWidth = cardW + 32.0; // 16px padding on each side
+                            if ((cubit.state.libraryZoneWidth - newWidth).abs() > 1.0) {
+                              cubit.setLibraryZoneWidth(newWidth);
+                            }
+                          });
                           
                           return Padding(
                             padding: const EdgeInsets.symmetric(

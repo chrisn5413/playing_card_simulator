@@ -15,6 +15,7 @@ class CardSimulatorState extends Equatable {
   final bool showOtherZones;
   final double battlefieldCardSize;
   final double zoneCardSize;
+  final double libraryZoneWidth;
 
   const CardSimulatorState({
     required this.battlefield,
@@ -30,6 +31,7 @@ class CardSimulatorState extends Equatable {
     this.showOtherZones = false,
     this.battlefieldCardSize = 100.0,
     this.zoneCardSize = 69.0,
+    this.libraryZoneWidth = 120.0, // Default width, will be updated when cards are loaded
   });
 
   factory CardSimulatorState.initial() =>
@@ -60,6 +62,7 @@ class CardSimulatorState extends Equatable {
     bool? showOtherZones,
     double? battlefieldCardSize,
     double? zoneCardSize,
+    double? libraryZoneWidth,
   }) {
     return CardSimulatorState(
       battlefield:
@@ -81,6 +84,8 @@ class CardSimulatorState extends Equatable {
           battlefieldCardSize ?? this.battlefieldCardSize,
       zoneCardSize:
           zoneCardSize ?? this.zoneCardSize,
+      libraryZoneWidth:
+          libraryZoneWidth ?? this.libraryZoneWidth,
     );
   }
 
@@ -99,5 +104,6 @@ class CardSimulatorState extends Equatable {
     showOtherZones,
     battlefieldCardSize,
     zoneCardSize,
+    libraryZoneWidth,
   ];
 }
