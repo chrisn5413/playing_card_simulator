@@ -9,13 +9,13 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Set window size for Windows to simulate phone screen
-  if (Platform.isWindows) {
-    setWindowTitle(
-      'Card Simulator',
-    ); // iPhone X size
-    setWindowMinSize(const Size(420, 600));
-    setWindowMaxSize(const Size(420, 600));
-  }
+  // if (Platform.isWindows) {
+  //   setWindowTitle(
+  //     'Card Simulator',
+  //   ); // iPhone X size
+  //   setWindowMinSize(const Size(420, 600));
+  //   setWindowMaxSize(const Size(420, 600));
+  // }
 
   runApp(const MyApp());
 }

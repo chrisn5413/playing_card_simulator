@@ -228,11 +228,15 @@ class ZoneList extends StatelessWidget {
               ),
             ),
             Expanded(
-                               child: LayoutBuilder(
+                                                               child: LayoutBuilder(
                    builder: (context, constraints) {
-                                           // Use consistent smaller card size to match other zones and prevent overflow
-                      const cardW = 50.0; // Reduced to match hand/library
-                      const cardH = 69.0; // Reduced to match hand/library
+                                           // Calculate card size based on actual zone height
+                      final cardSize = KSize.calculateZoneCardSize(
+                        zoneHeight: constraints.maxHeight,
+                        scaleFactor: 0.85, // Use more of the available space
+                      );
+                      final cardW = cardSize.width;
+                      final cardH = cardSize.height;
                   
                                      return Padding(
                      padding: const EdgeInsets.all(6), // Reduced from 8

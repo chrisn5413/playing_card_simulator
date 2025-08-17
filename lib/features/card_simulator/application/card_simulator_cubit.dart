@@ -1264,4 +1264,23 @@ class CardSimulatorCubit
       ),
     );
   }
+
+  // Card size management methods
+  void setBattlefieldCardSize(double size) {
+    emit(state.copyWith(battlefieldCardSize: size));
+  }
+
+  void setZoneCardSize(double size) {
+    emit(state.copyWith(zoneCardSize: size));
+  }
+
+  void increaseBattlefieldCardSize() {
+    final newSize = (state.battlefieldCardSize * 1.1).clamp(50.0, 200.0);
+    emit(state.copyWith(battlefieldCardSize: newSize));
+  }
+
+  void decreaseBattlefieldCardSize() {
+    final newSize = (state.battlefieldCardSize * 0.9).clamp(50.0, 200.0);
+    emit(state.copyWith(battlefieldCardSize: newSize));
+  }
 }

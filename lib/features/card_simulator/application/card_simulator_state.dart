@@ -13,6 +13,8 @@ class CardSimulatorState extends Equatable {
   final String? currentDeckName;
   final String? selectedCardId;
   final bool showOtherZones;
+  final double battlefieldCardSize;
+  final double zoneCardSize;
 
   const CardSimulatorState({
     required this.battlefield,
@@ -26,6 +28,8 @@ class CardSimulatorState extends Equatable {
     this.currentDeckName,
     this.selectedCardId,
     this.showOtherZones = false,
+    this.battlefieldCardSize = 100.0,
+    this.zoneCardSize = 69.0,
   });
 
   factory CardSimulatorState.initial() =>
@@ -54,6 +58,8 @@ class CardSimulatorState extends Equatable {
     String? currentDeckName,
     String? selectedCardId,
     bool? showOtherZones,
+    double? battlefieldCardSize,
+    double? zoneCardSize,
   }) {
     return CardSimulatorState(
       battlefield:
@@ -71,6 +77,10 @@ class CardSimulatorState extends Equatable {
           selectedCardId ?? this.selectedCardId,
       showOtherZones:
           showOtherZones ?? this.showOtherZones,
+      battlefieldCardSize:
+          battlefieldCardSize ?? this.battlefieldCardSize,
+      zoneCardSize:
+          zoneCardSize ?? this.zoneCardSize,
     );
   }
 
@@ -87,5 +97,7 @@ class CardSimulatorState extends Equatable {
     currentDeckName,
     selectedCardId,
     showOtherZones,
+    battlefieldCardSize,
+    zoneCardSize,
   ];
 }

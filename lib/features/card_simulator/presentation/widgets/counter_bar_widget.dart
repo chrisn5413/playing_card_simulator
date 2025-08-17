@@ -9,6 +9,8 @@ class CounterBarWidget extends StatelessWidget {
   final VoidCallback onReset;
   final VoidCallback onConfirmReset;
   final VoidCallback onLoadDeck;
+  final VoidCallback onIncreaseCardSize;
+  final VoidCallback onDecreaseCardSize;
 
   const CounterBarWidget({
     super.key,
@@ -20,6 +22,8 @@ class CounterBarWidget extends StatelessWidget {
     required this.onReset,
     required this.onConfirmReset,
     required this.onLoadDeck,
+    required this.onIncreaseCardSize,
+    required this.onDecreaseCardSize,
   });
 
   @override
@@ -62,6 +66,37 @@ class CounterBarWidget extends StatelessWidget {
             ),
           ),
           const Spacer(),
+          // Card size controls
+          IconButton(
+            tooltip: 'Decrease card size',
+            icon: const Icon(
+              Icons.zoom_out,
+              color: Colors.white70,
+              size: 18,
+            ),
+            onPressed: onDecreaseCardSize,
+            padding: const EdgeInsets.all(4),
+            constraints: const BoxConstraints(
+              minWidth: 28,
+              minHeight: 28,
+            ),
+          ),
+          const SizedBox(width: 4),
+          IconButton(
+            tooltip: 'Increase card size',
+            icon: const Icon(
+              Icons.zoom_in,
+              color: Colors.white70,
+              size: 18,
+            ),
+            onPressed: onIncreaseCardSize,
+            padding: const EdgeInsets.all(4),
+            constraints: const BoxConstraints(
+              minWidth: 28,
+              minHeight: 28,
+            ),
+          ),
+          const SizedBox(width: 8),
           OutlinedButton(
             onPressed: onLoadDeck,
             style: OutlinedButton.styleFrom(

@@ -56,33 +56,36 @@ class _BattlefieldDraggableCard
 
   @override
   Widget build(BuildContext context) {
-    const width = 50.0; // Match hand card size
-    const height = 69.0; // Match hand card size
-    final position =
-        card.position ?? const Offset(20, 20);
-    return Positioned(
-      left: position.dx,
-      top: position.dy,
-      child: Draggable<PlayingCardModel>(
-        data: card,
-        dragAnchorStrategy:
-            childDragAnchorStrategy,
-        feedback: SizedBox(
-          width: width,
-          height: height,
-          child: Material(
-            color: Colors.transparent,
-            child: CardWidget(
-              card: card,
+    return BlocBuilder<CardSimulatorCubit, CardSimulatorState>(
+      builder: (context, state) {
+        final cardSize = state.battlefieldCardSize;
+        final aspectRatio = 72.0 / 100.0; // Standard card aspect ratio
+        final width = cardSize * aspectRatio;
+        final height = cardSize;
+        final position = card.position ?? const Offset(20, 20);
+        
+        return Positioned(
+          left: position.dx,
+          top: position.dy,
+          child: Draggable<PlayingCardModel>(
+            data: card,
+            dragAnchorStrategy:
+                childDragAnchorStrategy,
+            feedback: SizedBox(
               width: width,
               height: height,
-              interactive: false,
+              child: Material(
+                color: Colors.transparent,
+                child: CardWidget(
+                  card: card,
+                  width: width,
+                  height: height,
+                  interactive: false,
+                ),
+              ),
             ),
-          ),
-        ),
-                 childWhenDragging: const SizedBox.shrink(),
-         child:
-            BlocBuilder<
+            childWhenDragging: const SizedBox.shrink(),
+            child: BlocBuilder<
               CardSimulatorCubit,
               CardSimulatorState
             >(
@@ -98,7 +101,9 @@ class _BattlefieldDraggableCard
                 );
               },
             ),
-      ),
+          ),
+        );
+      },
     );
   }
 }
@@ -139,5 +144,3 @@ class _GridPainter extends CustomPainter {
     covariant CustomPainter oldDelegate,
   ) => false;
 }
-
-// Removed stateful pan-based drag in favor of Draggable above.

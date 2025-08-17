@@ -75,4 +75,23 @@ class KSize {
     final maxCards = ((effectiveWidth + spacing) / (cardWidth + spacing)).floor();
     return maxCards.clamp(1, 10); // Limit to reasonable range
   }
+
+  /// Calculates card dimensions for zone display
+  /// 
+  /// [zoneHeight] - Height of the zone container
+  /// [aspectRatio] - Card aspect ratio (width/height)
+  /// [padding] - Padding around cards
+  /// [scaleFactor] - Factor to scale cards relative to zone height (0.0-1.0)
+  static Size calculateZoneCardSize({
+    required double zoneHeight,
+    double aspectRatio = 72.0 / 100.0,
+    double padding = 16.0,
+    double scaleFactor = 0.8,
+  }) {
+    final effectiveHeight = zoneHeight - padding;
+    final cardHeight = effectiveHeight * scaleFactor;
+    final cardWidth = cardHeight * aspectRatio;
+    
+    return Size(cardWidth, cardHeight);
+  }
 }
