@@ -988,34 +988,28 @@ class _HandDropAreaState extends State<_HandDropArea> {
                 width: cardW,
                 height: cardH,
                 margin: const EdgeInsets.symmetric(horizontal: 2),
-                child: Draggable<PlayingCardModel>(
-                  data: c,
-                  dragAnchorStrategy: childDragAnchorStrategy,
-                  feedback: SizedBox(
-                    width: cardW,
-                    height: cardH,
-                    child: Material(
-                      color: Colors.transparent,
-                      child: CardWidget(
-                        card: c,
-                        width: cardW,
-                        height: cardH,
-                        interactive: false,
-                      ),
-                    ),
-                  ),
-                  childWhenDragging: const SizedBox.shrink(),
-                  child: BlocBuilder<CardSimulatorCubit, CardSimulatorState>(
-                    builder: (context, state) {
-                      final isSelected = state.selectedCardId == c.id;
-                      return CardWidget(
-                        card: c,
-                        width: cardW,
-                        height: cardH,
-                        isSelected: isSelected,
+                child: SmartCardGestureDetector(
+                  card: c,
+                  cardW: cardW,
+                  cardH: cardH,
+                  isInScrollableZone: true,
+                  onScroll: (deltaX) {
+                    if (_scrollController.hasClients) {
+                      final currentOffset = _scrollController.offset;
+                      final newOffset = (currentOffset - deltaX).clamp(
+                        0.0,
+                        _scrollController.position.maxScrollExtent,
                       );
-                    },
-                  ),
+                      _scrollController.jumpTo(newOffset);
+                    }
+                  },
+                  onDragStart: () {
+                    context.read<CardSimulatorCubit>().clearSelection();
+                  },
+                  onTap: () {
+                    // Handle card selection
+                    context.read<CardSimulatorCubit>().selectCard(c.id);
+                  },
                 ),
               ),
             );
@@ -1031,6 +1025,7 @@ class _HandDropAreaState extends State<_HandDropArea> {
                                    vertical: 6,
                                  ),
                                  scrollDirection: Axis.horizontal,
+                                 physics: const NeverScrollableScrollPhysics(), // Disable default scrolling
                                  children: children,
                                ),
                              );
@@ -1078,4 +1073,167 @@ class _HandDropAreaState extends State<_HandDropArea> {
        ),
      ),
    );
+}
+
+class SmartCardGestureDetector extends StatefulWidget {
+  final PlayingCardModel card;
+  final double cardW;
+  final double cardH;
+  final bool isInScrollableZone;
+  final Function(double)? onScroll;
+  final VoidCallback? onDragStart;
+  final VoidCallback? onTap;
+
+  const SmartCardGestureDetector({
+    super.key,
+    required this.card,
+    required this.cardW,
+    required this.cardH,
+    this.isInScrollableZone = false,
+    this.onScroll,
+    this.onDragStart,
+    this.onTap,
+  });
+
+  @override
+  State<SmartCardGestureDetector> createState() => _SmartCardGestureDetectorState();
+}
+
+class _SmartCardGestureDetectorState extends State<SmartCardGestureDetector> {
+  Offset? _dragStartPosition;
+  bool _isDragging = false;
+  bool _isConstrained = false;
+  Offset _cardOffset = Offset.zero;
+  
+  // Thresholds for constrained dragging
+  static const double _liftDistance = 25.0;
+  static const double _scrollThreshold = 8.0;
+  
+  // Calculate vertical threshold as 66% of zone height
+  double get _verticalThreshold => widget.cardH * 0.66;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: widget.onTap,
+      onPanStart: (details) {
+        _dragStartPosition = details.globalPosition;
+        _isDragging = false;
+        _isConstrained = widget.isInScrollableZone;
+        _cardOffset = Offset.zero;
+      },
+      onPanUpdate: (details) {
+        if (_dragStartPosition == null) return;
+        
+        final delta = details.globalPosition - _dragStartPosition!;
+        final totalDistance = delta.distance;
+        
+        // Determine if this is a significant movement
+        if (!_isDragging && totalDistance > _scrollThreshold) {
+          _isDragging = true;
+          widget.onDragStart?.call();
+        }
+        
+        if (_isDragging) {
+          if (widget.isInScrollableZone) {
+            _handleConstrainedDrag(delta);
+          } else {
+            _handleNormalDrag(delta);
+          }
+        }
+      },
+             onPanEnd: (details) {
+         // Reset state
+         _dragStartPosition = null;
+         _isDragging = false;
+         _isConstrained = false;
+         _cardOffset = Offset.zero;
+       },
+             child: _isDragging && !_isConstrained
+         ? Draggable<PlayingCardModel>(
+             data: widget.card,
+             dragAnchorStrategy: childDragAnchorStrategy,
+             feedback: Transform.translate(
+               offset: _cardOffset,
+               child: SizedBox(
+                 width: widget.cardW,
+                 height: widget.cardH,
+                 child: Material(
+                   color: Colors.transparent,
+                   child: CardWidget(
+                     card: widget.card,
+                     width: widget.cardW,
+                     height: widget.cardH,
+                     interactive: false,
+                   ),
+                 ),
+               ),
+             ),
+             childWhenDragging: const SizedBox.shrink(),
+             child: Transform.translate(
+               offset: _cardOffset,
+               child: BlocBuilder<CardSimulatorCubit, CardSimulatorState>(
+                 builder: (context, state) {
+                   final isSelected = state.selectedCardId == widget.card.id;
+                   return CardWidget(
+                     card: widget.card,
+                     width: widget.cardW,
+                     height: widget.cardH,
+                     isSelected: isSelected,
+                   );
+                 },
+               ),
+             ),
+           )
+         : Transform.translate(
+             offset: _cardOffset,
+             child: BlocBuilder<CardSimulatorCubit, CardSimulatorState>(
+               builder: (context, state) {
+                 final isSelected = state.selectedCardId == widget.card.id;
+                 return CardWidget(
+                   card: widget.card,
+                   width: widget.cardW,
+                   height: widget.cardH,
+                   isSelected: isSelected,
+                 );
+               },
+             ),
+           ),
+    );
+  }
+  
+  void _handleConstrainedDrag(Offset delta) {
+    // Only allow horizontal scrolling when in constrained mode
+    if (_isConstrained) {
+      widget.onScroll?.call(delta.dx.toDouble());
+    }
+    
+    // Constrain vertical movement until threshold (upward only)
+    if (_isConstrained) {
+      final constrainedY = delta.dy.toDouble().clamp(-_liftDistance, 0.0); // Only allow upward movement
+      
+      if (delta.dy.toDouble() < -_verticalThreshold) { // Only release constraint when moving up significantly
+        _isConstrained = false; // Release constraint
+      }
+      
+      // Update card position with constrained movement
+      setState(() {
+        _cardOffset = Offset(0, constrainedY);
+      });
+    } else {
+      // Full drag mode - card can move anywhere (no scrolling)
+      setState(() {
+        _cardOffset = delta;
+      });
+    }
+  }
+  
+  void _handleNormalDrag(Offset delta) {
+    // For non-scrollable zones, just track the movement
+    setState(() {
+      _cardOffset = delta;
+    });
+  }
+  
+
 }
