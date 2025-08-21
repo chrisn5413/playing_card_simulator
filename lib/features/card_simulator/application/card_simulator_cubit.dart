@@ -32,38 +32,58 @@ class CardSimulatorCubit
 
   void reset() {
     final allCards = _allCards();
-    
+
     if (allCards.isEmpty) {
       // No cards - just reset counters
-      emit(state.copyWith(
-        life: 40,
-        turn: 1,
-        selectedCardId: null,
-      ));
+      emit(
+        state.copyWith(
+          life: 40,
+          turn: 1,
+          selectedCardId: null,
+        ),
+      );
     } else {
       // Move all cards to library and shuffle
-      final library = allCards.map((card) => card.copyWith(
-        zone: Zone.library,
-        position: null,
-        isTapped: false,
-        isFaceDown: true,
-      )).toList();
-      
-      emit(state.copyWith(
-        battlefield: [],
-        hand: [],
-        library: library,
-        graveyard: [],
-        exile: [],
-        command: [],
-        life: 40,
-        turn: 1,
-        selectedCardId: null,
-      ));
-      
+      final library = allCards
+          .map(
+            (card) => card.copyWith(
+              zone: Zone.library,
+              position: null,
+              isTapped: false,
+              isFaceDown: true,
+            ),
+          )
+          .toList();
+
+      // Calculate library zone width based on card size
+      final cardSize =
+          KSize.calculateZoneCardSize(
+            zoneHeight:
+                160.0, // Approximate zone height
+            scaleFactor: 0.85,
+          );
+      final libraryZoneWidth =
+          cardSize.width +
+          32.0; // 16px padding on each side
+
+      emit(
+        state.copyWith(
+          battlefield: [],
+          hand: [],
+          library: library,
+          graveyard: [],
+          exile: [],
+          command: [],
+          life: 40,
+          turn: 1,
+          selectedCardId: null,
+          libraryZoneWidth: libraryZoneWidth,
+        ),
+      );
+
       // Shuffle the library
       shuffleLibrary();
-      
+
       // Draw 7 cards to hand
       draw(7);
     }
@@ -78,7 +98,8 @@ class CardSimulatorCubit
         title: const Text('Reset?'),
         content: const Column(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment:
+              CrossAxisAlignment.start,
           children: [
             Text('Life: 40'),
             Text('Board Reset'),
@@ -112,36 +133,50 @@ class CardSimulatorCubit
   void nextTurn() {
     // Increment turn number
     final newTurn = state.turn + 1;
-    
+
     // Draw a card from library to hand
     draw(1);
-    
+
     // Untap all cards in all zones
-    final newBattlefield = state.battlefield.map((card) => card.copyWith(
-      isTapped: false,
-    )).toList();
-    
-    final newGraveyard = state.graveyard.map((card) => card.copyWith(
-      isTapped: false,
-    )).toList();
-    
-    final newExile = state.exile.map((card) => card.copyWith(
-      isTapped: false,
-    )).toList();
-    
-    final newCommand = state.command.map((card) => card.copyWith(
-      isTapped: false,
-    )).toList();
-    
+    final newBattlefield = state.battlefield
+        .map(
+          (card) =>
+              card.copyWith(isTapped: false),
+        )
+        .toList();
+
+    final newGraveyard = state.graveyard
+        .map(
+          (card) =>
+              card.copyWith(isTapped: false),
+        )
+        .toList();
+
+    final newExile = state.exile
+        .map(
+          (card) =>
+              card.copyWith(isTapped: false),
+        )
+        .toList();
+
+    final newCommand = state.command
+        .map(
+          (card) =>
+              card.copyWith(isTapped: false),
+        )
+        .toList();
+
     // Clear card selection
-    emit(state.copyWith(
-      turn: newTurn,
-      battlefield: newBattlefield,
-      graveyard: newGraveyard,
-      exile: newExile,
-      command: newCommand,
-      selectedCardId: null,
-    ));
+    emit(
+      state.copyWith(
+        turn: newTurn,
+        battlefield: newBattlefield,
+        graveyard: newGraveyard,
+        exile: newExile,
+        command: newCommand,
+        selectedCardId: null,
+      ),
+    );
   }
 
   void addCardToLibrary({
@@ -167,22 +202,35 @@ class CardSimulatorCubit
     if (state.library.isEmpty) return;
 
     // Take cards from library and add to hand
-    final drawn = state.library.take(count).toList();
-    final newLibrary = state.library.skip(count).toList();
-    final newHand = [...state.hand, ...drawn.map((card) => card.copyWith(
-      zone: Zone.hand,
-      isFaceDown: false,
-      isTapped: false,
-    ))];
-    
-    emit(state.copyWith(
-      library: newLibrary,
-      hand: newHand,
-    ));
+    final drawn = state.library
+        .take(count)
+        .toList();
+    final newLibrary = state.library
+        .skip(count)
+        .toList();
+    final newHand = [
+      ...state.hand,
+      ...drawn.map(
+        (card) => card.copyWith(
+          zone: Zone.hand,
+          isFaceDown: false,
+          isTapped: false,
+        ),
+      ),
+    ];
+
+    emit(
+      state.copyWith(
+        library: newLibrary,
+        hand: newHand,
+      ),
+    );
   }
 
   void shuffleLibrary() {
-    final library = List<PlayingCardModel>.from(state.library);
+    final library = List<PlayingCardModel>.from(
+      state.library,
+    );
     library.shuffle();
     emit(state.copyWith(library: library));
   }
@@ -339,8 +387,6 @@ class CardSimulatorCubit
                   ?.isGranted ==
               true;
 
-
-
       // Try multiple approaches for folder access
       List<String> images = [];
 
@@ -352,8 +398,7 @@ class CardSimulatorCubit
                 'Select folder containing card images',
           );
 
-              if (selectedDir != null) {
-
+      if (selectedDir != null) {
         // Try to access the directory contents with multiple methods
         images =
             await _tryMultipleDirectoryAccessMethods(
@@ -414,7 +459,6 @@ class CardSimulatorCubit
   _tryMultipleDirectoryAccessMethods(
     String dirPath,
   ) async {
-
     // Method 1: Try standard directory listing
     try {
       final images =
@@ -459,7 +503,6 @@ class CardSimulatorCubit
     String dirPath,
   ) async {
     try {
-
       // Check only necessary storage permissions
       final permissions = [
         Permission.storage,
@@ -472,8 +515,6 @@ class CardSimulatorCubit
         statuses[permission] =
             await permission.status;
       }
-
-
 
       // Request permissions if not granted
       bool hasAnyPermission = false;
@@ -534,7 +575,6 @@ class CardSimulatorCubit
     String dirPath,
   ) async {
     try {
-
       // Try to use file picker with the directory path as starting point
       final result = await FilePicker.platform
           .pickFiles(
@@ -554,7 +594,6 @@ class CardSimulatorCubit
 
       if (result != null &&
           result.files.isNotEmpty) {
-
         final images = result.files
             .where((file) => file.path != null)
             .map((file) => file.path!)
@@ -580,7 +619,6 @@ class CardSimulatorCubit
     String dirPath,
   ) async {
     try {
-
       final dir = Directory(dirPath);
       if (!await dir.exists()) {
         return [];
@@ -595,15 +633,15 @@ class CardSimulatorCubit
       } catch (e) {
         // Standard listing failed
 
-                  try {
-            // Approach 2: Try with recursive listing
-            allFiles = await dir
-                .list(recursive: true)
-                .toList();
-          } catch (e2) {
-            // Recursive listing also failed
-            return [];
-          }
+        try {
+          // Approach 2: Try with recursive listing
+          allFiles = await dir
+              .list(recursive: true)
+              .toList();
+        } catch (e2) {
+          // Recursive listing also failed
+          return [];
+        }
       }
 
       // Filter for image files
@@ -628,7 +666,6 @@ class CardSimulatorCubit
     BuildContext context,
   ) async {
     try {
-
       final result = await FilePicker.platform
           .pickFiles(
             type: FileType.custom,
@@ -647,7 +684,6 @@ class CardSimulatorCubit
 
       if (result != null &&
           result.files.isNotEmpty) {
-
         final images = result.files
             .where((file) => file.path != null)
             .map((file) => file.path!)
@@ -778,7 +814,6 @@ class CardSimulatorCubit
   Future<List<String>>
   _pickMultipleFilesOnAndroid() async {
     try {
-
       final result = await FilePicker.platform
           .pickFiles(
             type: FileType.custom,
@@ -876,6 +911,17 @@ class CardSimulatorCubit
           ),
         )
         .toList();
+
+    // Calculate library zone width based on card size
+    final cardSize = KSize.calculateZoneCardSize(
+      zoneHeight:
+          160.0, // Approximate zone height
+      scaleFactor: 0.85,
+    );
+    final libraryZoneWidth =
+        cardSize.width +
+        32.0; // 16px padding on each side
+
     emit(
       CardSimulatorState(
         battlefield: const [],
@@ -888,12 +934,13 @@ class CardSimulatorCubit
         turn: 1,
         currentDeckName: deck.name,
         selectedCardId: null,
+        libraryZoneWidth: libraryZoneWidth,
       ),
     );
-    
+
     // Shuffle the library
     shuffleLibrary();
-    
+
     // Draw 7 cards to hand to start the game
     draw(7);
   }
@@ -1268,7 +1315,9 @@ class CardSimulatorCubit
 
   // Card size management methods
   void setBattlefieldCardSize(double size) {
-    emit(state.copyWith(battlefieldCardSize: size));
+    emit(
+      state.copyWith(battlefieldCardSize: size),
+    );
   }
 
   void setZoneCardSize(double size) {
@@ -1276,13 +1325,29 @@ class CardSimulatorCubit
   }
 
   void increaseBattlefieldCardSize() {
-    final newSize = (state.battlefieldCardSize * 1.1).clamp(50.0, 200.0);
-    emit(state.copyWith(battlefieldCardSize: newSize));
+    final newSize =
+        (state.battlefieldCardSize * 1.1).clamp(
+          50.0,
+          200.0,
+        );
+    emit(
+      state.copyWith(
+        battlefieldCardSize: newSize,
+      ),
+    );
   }
 
   void decreaseBattlefieldCardSize() {
-    final newSize = (state.battlefieldCardSize * 0.9).clamp(50.0, 200.0);
-    emit(state.copyWith(battlefieldCardSize: newSize));
+    final newSize =
+        (state.battlefieldCardSize * 0.9).clamp(
+          50.0,
+          200.0,
+        );
+    emit(
+      state.copyWith(
+        battlefieldCardSize: newSize,
+      ),
+    );
   }
 
   // Library zone width management
@@ -1297,7 +1362,9 @@ class CardSimulatorCubit
       scaleFactor: 0.85,
     );
     // Add some padding for the card + margins
-    final newWidth = cardSize.width + 32.0; // 16px padding on each side
+    final newWidth =
+        cardSize.width +
+        32.0; // 16px padding on each side
     setLibraryZoneWidth(newWidth);
   }
 }

@@ -56,14 +56,21 @@ class _BattlefieldDraggableCard
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<CardSimulatorCubit, CardSimulatorState>(
+    return BlocBuilder<
+      CardSimulatorCubit,
+      CardSimulatorState
+    >(
       builder: (context, state) {
-        final cardSize = state.battlefieldCardSize;
-        final aspectRatio = 72.0 / 100.0; // Standard card aspect ratio
+        final cardSize =
+            state.battlefieldCardSize;
+        final aspectRatio =
+            72.0 /
+            100.0; // Standard card aspect ratio
         final width = cardSize * aspectRatio;
         final height = cardSize;
-        final position = card.position ?? const Offset(20, 20);
-        
+        final position =
+            card.position ?? const Offset(20, 20);
+
         return Positioned(
           left: position.dx,
           top: position.dy,
@@ -75,6 +82,7 @@ class _BattlefieldDraggableCard
               width: width,
               height: height,
               child: Material(
+                elevation: 8.0,
                 color: Colors.transparent,
                 child: CardWidget(
                   card: card,
@@ -84,23 +92,25 @@ class _BattlefieldDraggableCard
                 ),
               ),
             ),
-            childWhenDragging: const SizedBox.shrink(),
-            child: BlocBuilder<
-              CardSimulatorCubit,
-              CardSimulatorState
-            >(
-              builder: (context, state) {
-                final isSelected =
-                    state.selectedCardId ==
-                    card.id;
-                return CardWidget(
-                  card: card,
-                  width: width,
-                  height: height,
-                  isSelected: isSelected,
-                );
-              },
-            ),
+            childWhenDragging:
+                const SizedBox.shrink(),
+            child:
+                BlocBuilder<
+                  CardSimulatorCubit,
+                  CardSimulatorState
+                >(
+                  builder: (context, state) {
+                    final isSelected =
+                        state.selectedCardId ==
+                        card.id;
+                    return CardWidget(
+                      card: card,
+                      width: width,
+                      height: height,
+                      isSelected: isSelected,
+                    );
+                  },
+                ),
           ),
         );
       },
